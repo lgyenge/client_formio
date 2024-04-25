@@ -6,7 +6,7 @@
 <!-- * * * * * * * * * Delete the template below * * * * * * * * * -->
 <!-- * * * * * * * to get started with your project! * * * * * * * -->
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
-
+<!--
 <style>
   :host {
     --bright-blue: oklch(51.01% 0.274 263.83);
@@ -323,7 +323,7 @@
     </div>
   </div>
 </main>
-
+ -->
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
 <!-- * * * * * * * * * * * The content above * * * * * * * * * * * * -->
 <!-- * * * * * * * * * * is only a placeholder * * * * * * * * * * * -->
@@ -332,5 +332,95 @@
 <!-- * * * * * * * * * * End of Placeholder  * * * * * * * * * * * * -->
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
 
+<!-- <nav>
+  <a class="button" routerLink="/form">Form</a> |
+  <a class="button" routerLink="/">Vissza</a>
+</nav>
+<router-outlet /> -->
 
-<router-outlet />
+<app-header></app-header>
+<!-- <formio [form]='{
+  "title": "My Test Form",
+  "components": [
+      {
+          "type": "textfield",
+          "input": true,
+          "tableView": true,
+          "inputType": "text",
+          "inputMask": "",
+          "label": "First Name",
+          "key": "firstName",
+          "placeholder": "Enter your first name",
+          "prefix": "",
+          "suffix": "",
+          "multiple": false,
+          "defaultValue": "",
+          "protected": false,
+          "unique": false,
+          "persistent": true,
+          "validate": {
+              "required": true,
+              "minLength": 2,
+              "maxLength": 10,
+              "pattern": "",
+              "custom": "",
+              "customPrivate": false
+          },
+          "conditional": {
+              "show": !"",
+              "when": "",
+              "eq": ""
+          }
+      },
+      {
+          "type": "textfield",
+          "input": true,
+          "tableView": true,
+          "inputType": "text",
+          "inputMask": "",
+          "label": "Last Name",
+          "key": "lastName",
+          "placeholder": "Enter your last name",
+          "prefix": "",
+          "suffix": "",
+          "multiple": false,
+          "defaultValue": "",
+          "protected": false,
+          "unique": false,
+          "persistent": true,
+          "validate": {
+              "required": true,
+              "minLength": 2,
+              "maxLength": 10,
+              "pattern": "",
+              "custom": "",
+              "customPrivate": false
+          },
+          "conditional": {
+              "show": !"",
+              "when": "",
+              "eq": ""
+          }
+      },
+      {
+          "input": true,
+          "label": "Submit",
+          "tableView": false,
+          "key": "submit",
+          "size": "md",
+          "leftIcon": "",
+          "rightIcon": "",
+          "block": false,
+          "action": "submit",
+          "disableOnInvalid": true,
+          "theme": "primary",
+          "type": "button"
+      }
+  ]
+}'></formio> -->
+<!-- <form-builder [form]="{
+  components: []
+}"></form-builder> -->
+<div class="container" id="main">
+  <router-outlet></router-outlet>
+</div>
