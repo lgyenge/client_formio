@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { InplantViewComponent } from './inplant-view.component';
+import { implantViewComponent } from './implant-view.component';
 
-describe('InplantViewComponent', () => {
-  let component: InplantViewComponent;
-  let fixture: ComponentFixture<InplantViewComponent>;
+describe('implantViewComponent', () => {
+  let component: implantViewComponent;
+  let fixture: ComponentFixture<implantViewComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [InplantViewComponent]
+      declarations: [implantViewComponent]
     })
     .compileComponents();
-    
-    fixture = TestBed.createComponent(InplantViewComponent);
+
+    fixture = TestBed.createComponent(implantViewComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

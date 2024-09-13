@@ -24,13 +24,19 @@ const routes: Routes = [
   },
   {
     path: 'event',
+    // This is a route configuration that will load the EventModule
+    // when the route URL is '/event'. The loadChildren property
+    // is a function that will be called when the route is first
+    // accessed. The function imports the EventModule and returns
+    // it, so that it can be used to render the component for the
+    // route.
     loadChildren: () =>
       import('./event/event.module').then((m) => m.EventModule),
   },
   {
-    path: 'inplant',
+    path: 'implant',
     loadChildren: () =>
-      import('./inplant/inplant.module').then((m) => m.InplantModule),
+      import('./implant/implant.module').then((m) => m.implantModule),
   },
   {
     path: 'device',

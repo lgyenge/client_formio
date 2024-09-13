@@ -7,28 +7,30 @@ import {
   FormioResourceConfig,
   FormioResourceService
 } from '@formio/angular/resource';
-import { InplantViewComponent } from './inplant-view/inplant-view.component';
+import { implantViewComponent } from './implant-view/implant-view.component';
 
 
 
 
 @NgModule({
   declarations: [
-    InplantViewComponent
+    implantViewComponent
   ],
   imports: [
     CommonModule,
     FormioResource,
     RouterModule.forChild(FormioResourceRoutes({
-      view: InplantViewComponent
+      view: implantViewComponent
     }))
   ],
   providers: [
     FormioResourceService,
     {provide: FormioResourceConfig, useValue: {
-      name: 'inplant',
-      form: 'inplant'
+     /*  name: 'implant',
+      form: 'implant' */
+      name: '151-0111-6525-3',
+      form: '151-0111-6525-3'
     }}
   ]
 })
-export class InplantModule { }
+export class implantModule { }

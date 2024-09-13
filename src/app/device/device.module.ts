@@ -67,8 +67,8 @@ import { DeviceResourceComponent } from './device-resource/device-resource.compo
     {
       provide: FormioResourceConfig,
       useValue: {
-        name: 'device',
-        form: 'device'
+        name: '151-0111-6525-3',
+        form: '151-0111-6525-3'
       }
     }
   ]
