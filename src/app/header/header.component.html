@@ -17,6 +17,9 @@
       <li class="nav-item" routerLinkActive="event" *ngIf="auth.authenticated">
         <a class="nav-link" routerLink="event"><i class="fa fa-calendar"></i> Events</a>
       </li>
+      <li class="nav-item" routerLinkActive="sheet" *ngIf="auth.authenticated">
+        <a class="nav-link" routerLink="sheet"><i class="fa fa-wpforms"></i> Sheets</a>
+      </li>
     </ul>
     <ul class="nav navbar-nav ml-auto">
       <li class="nav-item" routerLinkActive="active" *ngIf="!auth.authenticated">

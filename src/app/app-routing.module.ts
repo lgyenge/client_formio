@@ -45,6 +45,7 @@ const routes: Routes = [
   },
 
    { path: 'gyl', component: FormComponent },
+   { path: 'sheet', loadChildren: () => import('./sheet/sheet.module').then(m => m.SheetModule) },
    /*
   {
     path: 'employee',

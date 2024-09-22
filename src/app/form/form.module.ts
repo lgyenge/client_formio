@@ -22,7 +22,7 @@ import {
     {
       provide: FormManagerConfig,
       useValue: {
-        tag: 'common',
+       // tag: 'common',
         includeSearch: true
       },
     },

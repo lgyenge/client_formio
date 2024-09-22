@@ -1,0 +1,72 @@
+<!-- <div class="mb-3">
+  <label for="exampleFormControlInput1" class="form-label">Email address</label>
+  <input type="email" class="form-control" id="exampleFormControlInput1" placeholder="name@example.com">
+</div>
+<div class="mb-3">
+  <label for="exampleFormControlTextarea1" class="form-label">Example textarea</label>
+  <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+</div> -->
+
+<form [formGroup]="searchForm" (ngSubmit)="onSubmit(searchForm)">
+  <div class="mb-3">
+    <label class="form-label">
+      Name:
+      <input
+        class="form-control"
+        formControlName="name"
+        placeholder="Inplant name"
+      />
+    </label>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">
+      Lot:
+      <input class="form-control" formControlName="lot" placeholder="Lot" />
+    </label>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">
+      Serial:
+      <input
+        class="form-control"
+        type="number"
+        formControlName="serial"
+        placeholder="Serial"
+      />
+    </label>
+  </div>
+  <button type="submit" [disabled]="searchForm.invalid">Find</button>
+</form>
+<formio-grid src='http://localhost:3001/form/6667f2485c21eb33b437b508/submission' ></formio-grid>
+<!--<formio-grid src='http://localhost:3001/form/6667f2485c21eb33b437b508/submission' [query]="{'data.lot':'NO111'}" ></formio-grid> -->
+<!-- ez jó
+<formio-grid
+  src="http://localhost:3001/form/6667f2485c21eb33b437b508/submission"
+  [query]="{ 'data.lot__regex': '/s/i' }"
+  [columns]="[{ path: 'data.lot', label: 'Saját címke' }]"
+></formio-grid>
+ -->
+<!-- ez jó
+ <formio-grid
+  src="http://localhost:3001/form?type=form&sort=title&tags=valami&limit=10&skip=0"
+  [query]="{ title__regex: '/151/i', tags__eq: ['valami'], type: 'form' }"
+  [gridType]="'form'"
+  [columns]="[{ path: 'title', label: 'First Name' }]"
+  (rowAction)="onAction($event)"
+  (rowSelect)="onSelect($event)"
+  (createItem)="onCreateItem()"
+>
+</formio-grid>
+-->
+<!--
+const query = {
+  params: {
+    type: 'resource',
+    limit: 1000000,
+    select: '_id,title,name,components',
+    'tags__ne': 'noBuilderResource'
+  }
+};
+__eq__, __ge__, __gt__, __le__, __lt__, __ne__
+!!!Postmasterben lehet látni a query paraméter példákat !!!
+-->
