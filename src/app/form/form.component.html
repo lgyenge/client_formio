@@ -1,2 +1,41 @@
 <p>form works!</p>
-<formio src="http://localhost:3001/gyl1" ></formio>
+<!-- <formio-grid
+  *ngIf="service.ready"
+  [src]="'http://localhost:3001/form?type=form&sort=title&tags=valami&limit=10&skip=0'"
+  [formio]="service.formio"
+  [gridType]="'form'"
+  [query]="gridQuery"
+  [isActionAllowed]="service.actionAllowed"
+  (rowAction)="onAction($event)"
+  (rowSelect)="onSelect($event)"
+  (createItem)="onCreateItem()"
+></formio-grid> -->
+
+
+
+ <formio [form]="{components: [
+  {
+    type: 'textfield',
+    label: 'FirstName',
+    key: 'firstName',
+    input: true
+  },
+  {
+    type: 'textfield',
+    label: 'LastName',
+    key: 'lastName',
+    input: true
+  },
+  {
+    type: 'email',
+    label: 'Email',
+    key: 'email',
+    input: true
+  },
+  {
+    type: 'button',
+    action: 'Submit',
+    label: 'Submit',
+    theme: 'primary'
+  }
+]}"></formio>

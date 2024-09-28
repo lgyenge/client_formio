@@ -20,19 +20,19 @@ export class FindFormComponent implements OnInit {
   searchForm!: FormGroup;
 
   //ez jó
-  url: string =
+ /*  url: string =
     'http://localhost:3001/form/6667f2485c21eb33b437b508/submission';
   query = {params: { 'data.lot': 'NO111' } };
   url1: string = 'http://localhost:3001';
   query1: any = {
     params: { title__regex: '/151/i', tags__eq: ['valami'], type: 'form' },
   };
-  service: FormioService;
+  service: FormioService; */
 
   constructor(private fb: FormBuilder) {
     //ez jó
-    this.service = new FormioService(this.url);
-    console.log('service', this.service);
+   /*  this.service = new FormioService(this.url);
+    console.log('service', this.service); */
   }
 
   ngOnInit() {
@@ -48,9 +48,9 @@ export class FindFormComponent implements OnInit {
     this.service.loadForms(this.query1).subscribe((res: any) => {
       console.log('res', res);
     }); */
-    this.service.loadSubmissions(this.query).subscribe((res: any) => {
+   /*  this.service.loadSubmissions(this.query).subscribe((res: any) => {
       console.log('res', res);
-    });
+    }); */
 
   }
   onSubmit(form: FormGroup) {

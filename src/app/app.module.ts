@@ -15,6 +15,10 @@ import { HeaderComponent } from './header/header.component';
 import { AppComponent } from './app.component';
 import { FormComponent } from './form/form.component';
 
+// különben nem ismeri fel a formio-grid komponenst
+import { FormioGrid } from '@formio/angular/grid';
+
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -23,7 +27,7 @@ import { FormComponent } from './form/form.component';
     HomeComponent,
     HeaderComponent,
   ],
-  imports: [BrowserModule, AppRoutingModule, FormioModule],
+  imports: [BrowserModule, FormioModule, FormioGrid, AppRoutingModule],
   providers: [
     FormioResources,
     FormioAuthService,
@@ -32,6 +36,7 @@ import { FormComponent } from './form/form.component';
       provide: FormManagerConfig,
       useValue: {
         tag: 'common',
+        includeSearch: true
       },
     },
     { provide: FormioAuthConfig, useValue: AuthConfig },

@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { FormioGridComponent } from '@formio/angular/grid';
+
 
 @Component({
   selector: 'app-form',
@@ -8,3 +10,4 @@ import { Component } from '@angular/core';
 export class FormComponent {
 
 }
+

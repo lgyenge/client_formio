@@ -1,4 +1,3 @@
-<p>display-form works!</p>
 <div role="search" class="input-group mb-3" *ngIf="config.includeSearch">
   <input
     #search
@@ -9,7 +8,6 @@
     aria-label="Search Forms"
     aria-describedby="button-search"
   />
-  <!-- <span *ngIf="search && search !== ''" class="form-clear input-group-addon" (click)="clearSearch()"><span class="fa fa-times bi bi-x"></span></span> -->
   <span
     *ngIf="search && search.value !== ''"
     class="form-clear input-group-addon"
@@ -17,30 +15,19 @@
     ><span class="fa fa-times bi bi-x"></span
   ></span>
 </div>
-<!-- <formio-grid
+
+<!-- !!!samples
+  [formio]="service.formio"
   src="http://localhost:3001/form?type=form&sort=title&tags=valami&limit=10&skip=0"
   [query]="{ title__regex: '/151/i', tags__eq: ['valami'], type: 'form' }"
-  [gridType]="'form'"
-></formio-grid> -->
-
-<!-- <formio-grid
+-->
+<formio-grid
   *ngIf="service.ready"
-  [formio]="service.formio"
+  [formio]="serviceFormioConverted"
   [gridType]="'form'"
   [query]="gridQuery"
   [isActionAllowed]="service.actionAllowed"
   (rowAction)="onAction($event)"
   (rowSelect)="onSelect($event)"
   (createItem)="onCreateItem()"
-></formio-grid> -->
-<!--
- <formio-grid
- *ngIf="service.ready"
- [gridType]="'form'"
- [query]="gridQuery"
- [isActionAllowed]="service.actionAllowed"
- (rowAction)="onAction($event)"
- (rowSelect)="onSelect($event)"
- (createItem)="onCreateItem()"
 ></formio-grid>
- -->

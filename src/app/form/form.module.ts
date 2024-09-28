@@ -5,8 +5,8 @@ import { FormioGrid } from '@formio/angular/grid';
 import {
   FormManagerModule,
   FormManagerRoutes,
-  FormManagerService,
-  FormManagerConfig,
+  //FormManagerService,
+  //FormManagerConfig,
 } from '@formio/angular/manager';
 
 @NgModule({
@@ -15,17 +15,19 @@ import {
     CommonModule,
     FormioGrid,
     FormManagerModule,
+    // RouterModule.forChild(FormManagerRoutes({'formIndex': FormComponent})),
     RouterModule.forChild(FormManagerRoutes()),
+
   ],
   providers: [
-    FormManagerService,
+   /* FormManagerService,
     {
       provide: FormManagerConfig,
       useValue: {
        // tag: 'common',
         includeSearch: true
       },
-    },
+    }, */
   ],
 })
 export class FormModule {}

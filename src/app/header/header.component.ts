@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormioAuthService } from '@formio/angular/auth';
 
 @Component({
@@ -6,10 +6,9 @@ import { FormioAuthService } from '@formio/angular/auth';
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.sass']
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent  {
 
   constructor(public auth: FormioAuthService) {}
 
-  ngOnInit() {}
 
 }
