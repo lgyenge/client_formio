@@ -1,0 +1,16 @@
+<!-- <formio *ngIf="service.formio.submissionUrl"
+  [renderer]="service.config.renderer"
+  [src]="service.formio.submissionUrl"
+  [readOnly]="true"
+  (formLoad)="service.setForm($event)"
+  (submissionLoad)="service.submissionLoaded($event)"
+></formio>
+ -->
+
+ <formio *ngIf=true
+  [renderer]="service.config.renderer"
+  [src]="service.formio.submissionUrl"
+  [readOnly]="true"
+  (formLoad)="service.setForm($event)"
+  (submissionLoad)="service.submissionLoaded($event)"
+></formio>

@@ -1,0 +1,22 @@
+<formio-grid
+  *ngIf="service.ready"
+  [formio]="serviceFormioConverted"
+  [query]="query"
+  [isActionAllowed]="service.actionAllowed"
+  (rowAction)="onAction($event)"
+  (rowSelect)="onSelect($event)"
+></formio-grid>
+
+<!-- <formio-grid
+  [formio]="serviceFormioConverted"
+  [isActionAllowed]="service.actionAllowed"
+  (rowAction)="onAction($event)"
+  (rowSelect)="onSelect($event)"
+></formio-grid> -->
+
+<!-- <formio-grid
+  [src]="src"
+></formio-grid> -->
+<!--
+<formio-grid
+></formio-grid> -->

@@ -23,7 +23,6 @@ export class DisplayFormComponent implements OnInit, AfterViewInit {
   public gridQuery: any;
   public onSearch;
   // public service2 = new FormioPromiseService('http://localhost:3001');
-  // !!! gyl converted to FormioPromiseService
   public serviceFormioConverted = this.service
     .formio as unknown as FormioPromiseService;
 
@@ -81,6 +80,7 @@ export class DisplayFormComponent implements OnInit, AfterViewInit {
       this.formGrid.footer.pageChanged.subscribe((page) => {
         localStorage.setItem('currentPage', page.page);
       });
+      console.log(`service:`, this.service);
     });
   }
 

@@ -1,0 +1,8 @@
+<formio
+  [renderer]="service.config.renderer"
+  [src]="service.formio.submissionUrl"
+  (submit)="onSubmit($event)"
+  (formLoad)="service.setForm($event)"
+  (submissionLoad)="service.submissionLoaded($event)"
+></formio>
+

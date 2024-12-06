@@ -7,7 +7,7 @@ import { FormioModule, FormioAppConfig } from '@formio/angular';
 import { FormManagerService, FormManagerConfig } from '@formio/angular/manager';
 import { FormioAuthService, FormioAuthConfig } from '@formio/angular/auth';
 import { FormioResources } from '@formio/angular/resource';
-import { AuthConfig, AppConfig } from '../config';
+import { AuthConfig, AppConfig, LotConfig } from '../config';
 import { HeroComponent } from './hero/hero.component';
 import { HomeComponent } from './home/home.component';
 import { HeaderComponent } from './header/header.component';
@@ -17,6 +17,8 @@ import { FormComponent } from './form/form.component';
 
 // különben nem ismeri fel a formio-grid komponenst
 import { FormioGrid } from '@formio/angular/grid';
+import { ExcelExampleComponent } from './excel-example/excel-example.component';
+//import { DataService } from './data.service';
 
 
 @NgModule({
@@ -26,9 +28,11 @@ import { FormioGrid } from '@formio/angular/grid';
     HeroComponent,
     HomeComponent,
     HeaderComponent,
+    ExcelExampleComponent,
   ],
   imports: [BrowserModule, FormioModule, FormioGrid, AppRoutingModule],
   providers: [
+    //DataService,
     FormioResources,
     FormioAuthService,
     FormManagerService,
@@ -41,6 +45,7 @@ import { FormioGrid } from '@formio/angular/grid';
     },
     { provide: FormioAuthConfig, useValue: AuthConfig },
     { provide: FormioAppConfig, useValue: AppConfig },
+    //{ provide: 'LotConfig', useValue: LotConfig },
   ],
   bootstrap: [AppComponent],
 })

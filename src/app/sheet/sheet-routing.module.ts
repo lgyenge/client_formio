@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { FindFormComponent } from './find-form/find-form.component';
+// import { FindFormComponent } from './find-form/find-form.component';
 import { DisplayFormComponent } from './display-form/display-form.component';
 import { SheetComponent } from './sheet/sheet.component';
 // import { SubmissionComponent } from './submission_old/submission.component';
