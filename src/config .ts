@@ -2,7 +2,7 @@ import { FormioAppConfig } from '@formio/angular';
 import { FormioAuthConfig } from '@formio/angular/auth';
 
 
-/* !!!!!!!!!!!!!!!!!!!!!!!!!trai app cofig!!!!!!!!!!!!!!!!!!!!!!!! --> ezt kivenni*/
+/* !!!!!!!!!!!!!!!!!!!!!!!!!trai app cofig!!!!!!!!!!!!!!!!!!!!!!!! --> ezt kivenni*/ 1
 export const AppConfig: FormioAppConfig = {
   appUrl: 'https://trai.dimeb.hu',
   apiUrl: 'https://trai.dimeb.hu',
@@ -12,7 +12,7 @@ export const AppConfig: FormioAppConfig = {
 export const LotConfig = {
   lotId: '66f800b85745f22fe9d17440',
 };
-/* !!!!!!!!!!!!!!!!!!!!!!!! trai app cofig end !!!!!!!!!!!!!!!!!!!!*/
+/* !!!!!!!!!!!!!!!!!!!!!!!! trai app cofig end !!!!!!!!!!!!!!!!!!!!!!!*/
 
 
 /* !!!!!!!!!!!!!!!!!!!!!! local app cofig !!!!!!!!!!!!!!!!!!!!!!!! --> ezt kivenni *
