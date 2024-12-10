@@ -4,6 +4,8 @@ import { Papa } from 'ngx-papaparse';
 import { DinetFormioForm } from '../dinet_common';
 import { UploadService } from '../upload.service';
 import { LotConfig } from '../../config ';
+import { FormioAuthService } from '@formio/angular/auth';
+import { AccessSetting } from '@formio/angular';
 
 @Component({
   selector: 'app-upload',
@@ -16,22 +18,80 @@ export class UploadComponent implements OnInit {
   public importedData: Array<any> = [];
   formToUpload: DinetFormioForm | undefined;
   dataList: any;
-
+  roles: string[] = [];
+  accessSetting: AccessSetting = {
+    type: 'read_all',
+    roles: [],
+  };
+  accessSubmissionCreateAll: AccessSetting = {
+    type: 'create_all',
+    roles: [],
+  };
+  accessSubmissionReadAll: AccessSetting = {
+    type: 'read_all',
+    roles: [],
+  };
+  accessSubmissionUpdateAll: AccessSetting = {
+    type: 'update_all',
+    roles: [],
+  };
+  accessSubmissionDeleteAll: AccessSetting = {
+    type: 'delete_all',
+    roles: [],
+  };
+  accessSubmissionCreateOwn: AccessSetting = {
+    type: 'create_own',
+    roles: [],
+  };
+  accessSubmissionReadOwn: AccessSetting = {
+    type: 'read_own',
+    roles: [],
+  };
+  accessSubmissionUpdateOwn: AccessSetting = {
+    type: 'update_own',
+    roles: [],
+  };
+  accessSubmissionDeleteOwn: AccessSetting = {
+    type: 'delete_own',
+    roles: [],
+  };
   constructor(
     public appConfig: FormioAppConfig,
     private papa: Papa,
-    private upload: UploadService
+    private upload: UploadService,
+    public auth: FormioAuthService
   ) {}
 
   ngOnInit(): void {
     const obj = this;
-
-    //throw new Error('Method not implemented.');
+    this.auth.ready.then(() => {
+      this.roles.push(this.auth.roles.administrator._id);
+      this.roles.push(this.auth.roles.authenticated._id);
+      this.roles.push(this.auth.roles.anonymous._id);
+      this.accessSetting.roles = this.roles;
+      this.accessSubmissionReadAll.roles.push(
+        this.auth.roles.authenticated._id
+      );
+      this.accessSubmissionCreateOwn.roles.push(
+        this.auth.roles.authenticated._id
+      );
+      this.accessSubmissionReadOwn.roles.push(
+        this.auth.roles.authenticated._id
+      );
+      this.accessSubmissionUpdateOwn.roles.push(
+        this.auth.roles.authenticated._id
+      );
+      this.accessSubmissionDeleteOwn.roles.push(
+        this.auth.roles.authenticated._id
+      );
+    });
   }
 
   uploadForm() {
+    console.log(this.dataList);
     this.dataList.forEach((element: any) => {
       this.formToUpload = this.generateForm(element);
+      console.log(this.formToUpload);
       this.upload.uploadForm(this.formToUpload).subscribe((result) => {
         //console.log(result);
       });
@@ -65,8 +125,6 @@ export class UploadComponent implements OnInit {
       worker: true,
       //complete: this.papaParseCompleteFunction,
       complete: (results, file) => {
-        //console.log(results);
-        this.dataList = results.data;
         this.papaParseComplete(results);
       },
     });
@@ -88,52 +146,9 @@ export class UploadComponent implements OnInit {
       path: '',
       tags: ['common'],
       components: [],
-      access: [
-        {
-          type: 'read_all',
-          roles: [
-            '66615ebd567532322b440b21',
-            '66615ebd567532322b440b25',
-            '66615ebd567532322b440b29',
-          ],
-        },
-      ],
-      submissionAccess: [
-        {
-          type: 'create_all',
-          roles: [],
-        },
-        {
-          type: 'read_all',
-          roles: ['66615ebd567532322b440b25'],
-        },
-        {
-          type: 'update_all',
-          roles: [],
-        },
-        {
-          type: 'delete_all',
-          roles: [],
-        },
-        {
-          type: 'create_own',
-          roles: ['66615ebd567532322b440b25'],
-        },
-        {
-          type: 'read_own',
-          roles: ['66615ebd567532322b440b25'],
-        },
-        {
-          type: 'update_own',
-          roles: ['66615ebd567532322b440b25'],
-        },
-        {
-          type: 'delete_own',
-          roles: ['66615ebd567532322b440b25'],
-        },
-      ],
+      access: [],
+      submissionAccess: [],
     };
-
 
     let submit = {
       type: 'button',
@@ -170,14 +185,11 @@ export class UploadComponent implements OnInit {
       input: true,
     };
 
-
     let user = setTextfield('user');
     // user.customDefaultValue = "value = Formio.getUser().data.email;"
     //user.customDefaultValue = "value = localStorage.getItem(formioUser).data.email;"
     user.customDefaultValue = 'value = user.data.email;';
     user.disabled = true;
-
-
 
     newform.name = nfdata.Cikkszám + end;
     newform.title = nfdata.Cikkszám + ' (' + nfdata.Megnevezés + ')';
@@ -200,6 +212,17 @@ export class UploadComponent implements OnInit {
       }
     }
     newform.components?.push(submit);
+
+    newform.access?.push(this.accessSetting);
+
+    newform.submissionAccess?.push(this.accessSubmissionCreateAll);
+    newform.submissionAccess?.push(this.accessSubmissionReadAll);
+    newform.submissionAccess?.push(this.accessSubmissionUpdateAll);
+    newform.submissionAccess?.push(this.accessSubmissionDeleteAll);
+    newform.submissionAccess?.push(this.accessSubmissionCreateOwn);
+    newform.submissionAccess?.push(this.accessSubmissionReadOwn);
+    newform.submissionAccess?.push(this.accessSubmissionUpdateOwn);
+    newform.submissionAccess?.push(this.accessSubmissionDeleteOwn);
 
     return newform;
 
