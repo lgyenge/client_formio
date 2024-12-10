@@ -1,8 +1,8 @@
 <ul aria-label="Submission" role="navigation" class="nav nav-tabs" style="margin-bottom:10px">
   <li class="nav-item"><a class="nav-link" routerLink="../../"><em class="fa fa-chevron-left bi bi-chevron-left"></em></a></li>
   <li class="nav-item" routerLinkActive="active"><a class="nav-link" routerLink={{header}} routerLinkActive="active"> #0</a></li>
-  <li *ngIf="formIds2[1]" class="nav-item" routerLinkActive="active"><a class="nav-link" routerLink={{header2}} routerLinkActive="active"> #1</a></li>
-  <li *ngIf="formIds2[2]" class="nav-item" routerLinkActive="active"><a class="nav-link" routerLink="{{header3}}" routerLinkActive="active"> #2</a></li>
+  <li *ngIf="forms[1]?._id" class="nav-item" routerLinkActive="active"><a class="nav-link" routerLink={{header1}} routerLinkActive="active"> #1</a></li>
+  <li *ngIf="forms[2]?._id" class="nav-item" routerLinkActive="active"><a class="nav-link" routerLink="{{header2}}" routerLinkActive="active"> #2</a></li>
   <li *ngIf="auth.is.administrator" class="nav-item" routerLinkActive="active"><a class="nav-link" routerLink="save" routerLinkActive="active">Excel</a></li>
   <li class="nav-item" routerLinkActive="active"><a class="nav-link" routerLink="new" routerLinkActive="active">New</a></li>
 </ul>

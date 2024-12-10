@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormioAppConfig, FormioService } from '@formio/angular';
 import { debounceTime, filter, Subject, switchMap, takeUntil, tap } from 'rxjs';
-import { LotConfig } from '../../../config';
+import { LotConfig } from '../../../config ';
 import { DinetFormioForm } from '../../dinet_common';
 @Component({
   selector: 'app-meo-lot',

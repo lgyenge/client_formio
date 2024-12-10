@@ -20,7 +20,7 @@ export class SubmissionComponent2 implements OnInit {
   ngOnInit() {
     this.service.setSubmission(this.route).then((formio: any) => {
       formio.getDownloadUrl().then((url: any) => this.setDownloadUrl(url));
-       console.log(this.service);
+       //console.log(this.service);
 
     });
     // console.log(this.service);

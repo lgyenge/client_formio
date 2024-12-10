@@ -37,8 +37,8 @@ export class SubmissionOldComponent implements OnInit {
   /* onSelect($event: any) {
     this.formData = $event.data;
     this.gridQuery = {'data.lot__eq':this.formData.lot};
-    console.log(this.gridQuery);
-    console.log(this.formGrid);
+    //console.log(this.gridQuery);
+    //console.log(this.formGrid);
 
   } */
   onSelect(row: any) {
@@ -63,7 +63,7 @@ export class SubmissionOldComponent implements OnInit {
     let locationSegments: any[];
     if (locationPath.length) {
       locationSegments = locationPath.split('/');
-      console.log(locationSegments);
+      //console.log(locationSegments);
     } else {
       locationSegments = [];
     }

@@ -31,14 +31,14 @@ export class MeoComponent implements OnInit {
   }
 
   ClickedRow(i: number, form: DinetFormioForm) {
-    localStorage.setItem('form_id', this.userSearchResults[i]._id);
+    localStorage.setItem('form_id', this.userDisplayResults[i]._id ?? '');
     this.FindStep(1, form);
     this.router.navigate(['lot'], { relativeTo: this.route });
   }
-
   FindStep(i: number, form: DinetFormioForm) {
     //let name = form.name + '-st' + i;
     let name = form.name;
+    //console.log(name)
     let query = {
       params: {
         //todo: redux pontosítás
@@ -54,10 +54,25 @@ export class MeoComponent implements OnInit {
       .subscribe((results) => {
         /* type error in formio */
         let dinetResults = results as DinetFormioForm[];
-        dinetResults.forEach((element) => {
-          this.form_ids.push(element._id);
+        // reverse form order in forms
+        dinetResults.sort((a, b) => {
+          const nameA = (a.name ?? '').toUpperCase(); // ignore upper and lowercase
+          const nameB = (b.name ?? '').toUpperCase(); // ignore upper and lowercase
+          if (nameA < nameB) {
+            return -1;
+          }
+          if (nameA > nameB) {
+            return 1;
+          }
+          // names must be equal
+          return 0;
         });
-        localStorage.setItem('form_ids', JSON.stringify(this.form_ids));
+        dinetResults.forEach((element) => {
+          if (element._id) {
+          this.form_ids.push(element._id);
+          }
+        });
+        //localStorage.setItem('form_ids', JSON.stringify(this.form_ids));
         localStorage.setItem('forms', JSON.stringify(dinetResults));
         //console.log('form_ids', this.form_ids);
       });

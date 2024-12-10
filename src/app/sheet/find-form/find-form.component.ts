@@ -32,7 +32,7 @@ export class FindFormComponent implements OnInit {
   constructor(private fb: FormBuilder) {
     //ez jó
    /*  this.service = new FormioService(this.url);
-    console.log('service', this.service); */
+    //console.log('service', this.service); */
   }
 
   ngOnInit() {
@@ -46,17 +46,17 @@ export class FindFormComponent implements OnInit {
     });
   /*   ez jó
     this.service.loadForms(this.query1).subscribe((res: any) => {
-      console.log('res', res);
+      //console.log('res', res);
     }); */
    /*  this.service.loadSubmissions(this.query).subscribe((res: any) => {
-      console.log('res', res);
+      //console.log('res', res);
     }); */
 
   }
   onSubmit(form: FormGroup) {
-    console.log('Valid?', form.valid); // true or false
-    console.log('Name', form.value.name);
-    console.log('Lot', form.value.lot);
-    console.log('Serial', form.value.serial);
+    //console.log('Valid?', form.valid); // true or false
+    //console.log('Name', form.value.name);
+    //console.log('Lot', form.value.lot);
+    //console.log('Serial', form.value.serial);
   }
 }

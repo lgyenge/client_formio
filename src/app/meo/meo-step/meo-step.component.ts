@@ -5,6 +5,7 @@ import { FormManagerService, FormManagerConfig } from '@formio/angular/manager';
 import { FormioAuthService } from '@formio/angular/auth';
 
 import { DataService } from  '../../data.service';
+import { DinetFormioForm } from '../../dinet_common';
 
 @Component({
   selector: 'app-meo-step',
@@ -16,14 +17,11 @@ export class MeoStepComponent implements OnInit {
   updateForm(message: string){
     this.dataService.sendMessage(message);
   }
-
-  formIds = localStorage.getItem('form_ids')  ;
-  formIds2 = JSON.parse(this.formIds ?? '[]');
-
-  header = '/meo/lot/step/' + (this.formIds2[0] ) + '/header';
-  header2 = '/meo/lot/step/' + (this.formIds2[1] ) + '/header';
-  header3 = '/meo/lot/step/' + (this.formIds2[2] ) + '/header';
-
+  forms: DinetFormioForm[] = JSON.parse(localStorage.getItem('forms') ?? '[]');
+  header = '/meo/lot/step/' + (this.forms[0]._id) + '/header';
+  header1 = '/meo/lot/step/' + (this.forms[1]?._id) + '/header';
+// ezt hiányolta ??????????????????????????????????????????????????????????
+  header2 = '/meo/lot/step/' + (this.forms[2]?._id) + '/header';
 
   constructor(
     public service: FormManagerService,
@@ -32,16 +30,18 @@ export class MeoStepComponent implements OnInit {
     public appConfig: FormioAppConfig,
     public router: Router,
     private dataService: DataService
-  ) {}
+  ) {
+    //console.log(this.header1)
+    //console.log(this.header2)
+
+
+  }
 
   ngOnInit() {
     this.route.params.subscribe((params) => {
       this.updateForm(params['id']);
     });
     this.service.reset(this.route);
-    console.log(JSON.parse(this.formIds ?? '[]'));
-    //console.log(this.header)
-    //console.log(this.service);
-    //console.log(this.route);
+    //console.log(this.auth)
   }
 }

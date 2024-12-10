@@ -20,8 +20,8 @@ export class SheetComponent {
   ngOnInit(): void {
 
     this.route.paramMap.subscribe(params => {
-      console.log(params);
-      console.log(this.route);
+      //console.log(params);
+      //console.log(this.route);
 
     });
   }
