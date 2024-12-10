@@ -15,7 +15,7 @@ export class MeoStepViewComponent {
     public appConfig: FormioAppConfig,
 
   ) {
-    console.log(service)
+    //console.log(service)
 
   }
 

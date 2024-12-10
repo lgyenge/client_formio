@@ -11,6 +11,7 @@ import { AuthConfig, AppConfig, LotConfig } from '../config';
 import { HeroComponent } from './hero/hero.component';
 import { HomeComponent } from './home/home.component';
 import { HeaderComponent } from './header/header.component';
+import { HttpClientModule } from  '@angular/common/http';
 
 import { AppComponent } from './app.component';
 import { FormComponent } from './form/form.component';
@@ -30,7 +31,7 @@ import { ExcelExampleComponent } from './excel-example/excel-example.component';
     HeaderComponent,
     ExcelExampleComponent,
   ],
-  imports: [BrowserModule, FormioModule, FormioGrid, AppRoutingModule],
+  imports: [BrowserModule, FormioModule, FormioGrid, AppRoutingModule, HttpClientModule],
   providers: [
     //DataService,
     FormioResources,

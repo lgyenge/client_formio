@@ -6,7 +6,7 @@ import {
   FormioSubmission,
 } from '@formio/angular';
 import { ExcelService } from '../../excel.service';
-import { DinetFormioForm } from '../../dinet_common';
+import { DinetFormioForm, SheetData } from '../../dinet_common';
 
 @Component({
   selector: 'app-meo-excel',
@@ -14,85 +14,93 @@ import { DinetFormioForm } from '../../dinet_common';
   styleUrl: './meo-excel.component.scss',
 })
 export class MeoExcelComponent implements OnInit {
-  service: FormioService;
-  //userSearchResults: any = [];
-
- /*  data = [
-    { Name: 'John Doe', Age: 30, City: 'New York' },
-    { Name: 'Jane Smith', Age: 25, City: 'San Francisco' },
-    // Add more data as needed
-  ];
- */
+  services: FormioService[] = [] // | undefined;
   query = JSON.parse(localStorage.getItem('meo_query') || '{}');
-  formIds = JSON.parse(localStorage.getItem('form_ids') ?? '[]');
   forms: DinetFormioForm[] = JSON.parse(localStorage.getItem('forms') ?? '[]');
   keys: (string | undefined)[] = [];
   labels: (string | undefined)[] = [];
-  raw: string[] = [];
-  raws: string[][] = [];
+  row: string[] = [];
+  rows: string[][] = [];
   lot: string = localStorage.getItem('lot_no') || 'noLot';
-  file_name: string = this.forms[0].name || 'noFilename';
-
+  sheetData: SheetData[] = [];
   constructor(
     public appConfig: FormioAppConfig,
     private excelService: ExcelService
   ) {
-    this.service = new FormioService(
-      this.appConfig.appUrl + '/form/' + this.formIds[0]
-    );
-    //this.service = new FormioService(this.appConfig.appUrl);
-    //this.service = new FormioService(this.appConfig.appUrl + '/form/' + msg);
-    //this.service.loadForms(this.query);
+    this.forms.forEach((form) => {
+      //console.log(form);
+      let formio = new FormioService(
+        this.appConfig.appUrl + '/form/' + form._id
+      );
+      this.services.push(formio);
+    });
+    //console.log(this.services);
   }
 
-  CreateTable(form: DinetFormioForm, submissions: FormioSubmission[]) {
-    //console.log('form:' + form);
-    let keys: (string | undefined)[] = [];
-    let labels: (string | undefined)[] = [];
-    let rows: (string | undefined)[] = [];
-    //console.log(`form: ${JSON.stringify(form)}`);
-    //console.log(`submissions: ${JSON.stringify(submissions)}`);
+  CreateTable(
+    form: DinetFormioForm,
+    submissions: FormioSubmission[]
+  ): SheetData {
+    let keys: string[] = [];
+    let labels: string[] = [];
+    let rows: string[][] = [];
+    let sd: SheetData;
     form.components?.forEach((component) => {
-      if (component.type !== 'button'&& component.key !== 'lot1') {
-        keys.push(component.key);
-        labels.push(component.label);
+      if (component.type !== 'button' && component.key !== 'lot1') {
+        keys.push(component.key ?? '');
+        labels.push(component.label ?? '');
       }
     });
-    this.keys = keys;
-    this.labels = labels;
-    console.log('keys:' + keys);
-    console.log('labels:' + labels);
-
+    //console.log('keys:' + keys);
+    //console.log('labels:' + labels);
     submissions.forEach((submission) => {
-      //let raw: any[] = [];
-      let raw: string[] = [];
-
+      let row: any[] = [];
       /* key never undefined */
       keys.forEach((key) => {
         if (key !== undefined && key !== 'lot1') {
-          /* pushed value undefined is data[key] not exist  */
-
-          raw.push(submission.data[key]);
+          /* pushed value undefined if data[key] not exist  */
+          row.push(submission.data[key]);
         }
       });
-      console.log(raw);
-      this.raws.push(raw);
+      //console.log(row);
+      rows.push(row);
     });
+    sd = {
+      lot: this.lot,
+      file_name: form.name || '',
+      keys: keys,
+      labels: labels,
+      rows: rows,
+    };
+    //console.log(sd);
+    return sd;
   }
 
   ngOnInit(): void {
-    this.service.loadSubmissions(this.query).subscribe((results) => {
-      //this.userSearchResults = results;
-      this.CreateTable(this.forms[0], results as FormioSubmission[]);
+    this.services.forEach((service, index) => {
+      service.loadSubmissions(this.query).subscribe((results) => {
+        //console.log(results)
+        //console.log(this.forms[index])
+        this.sheetData.push(
+          this.CreateTable(this.forms[index], results as FormioSubmission[])
+        );
+      });
     });
   }
   exportToExcel(): void {
-    this.excelService.generateExcel(
-      this.lot,
-      this.file_name,
-      this.keys,
-      this.labels,
-      this.raws
-    );
+    this.sheetData.sort((a, b) => {
+      const nameA = (a.file_name ?? '').toUpperCase(); // ignore upper and lowercase
+      const nameB = (b.file_name ?? '').toUpperCase(); // ignore upper and lowercase
+      if (nameA < nameB) {
+        return -1;
+      }
+      if (nameA > nameB) {
+        return 1;
+      }
+      // names must be equal
+      return 0;
+    });
+    this.excelService.generateExcel(this.sheetData);
+    //console.log(this.sheetData)
   }
 }

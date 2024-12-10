@@ -1,0 +1,14 @@
+<input
+  type="file"
+  class="file-input"
+  class="form-control"
+  (change)="readCsvFromLocal($event)"
+  accept=".csv"
+/>
+
+
+<button (click)="uploadForm()">Upload Form</button>
+
+
+<div>data from csv</div>
+<div *ngFor="let item of dataList">{{ item | json }}</div>

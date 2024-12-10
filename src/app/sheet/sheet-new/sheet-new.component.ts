@@ -38,8 +38,8 @@ export class SheetNewComponent implements OnInit {
 
   ngOnInit() {
     this.service.reset(this.route);
-    console.log(this.service);
-    console.log(this.route);
+    //console.log(this.service);
+    //console.log(this.route);
     this.service.loadForm().then(form => {
       this.service.formSrc = this.appConfig.appUrl + '/' + form.path;
       this.projectId = form.project;
