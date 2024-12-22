@@ -10,15 +10,13 @@ import {
   FormioResourceIndexComponent,
   FormioResourceCreateComponent,
   FormioResourceEditComponent,
-  FormioResourceDeleteComponent
+  FormioResourceDeleteComponent,
 } from '@formio/angular/resource';
 import { DeviceResourceComponent } from './device-resource/device-resource.component';
+import { authGuard } from '../guards/auth.guard';
 
 @NgModule({
-  declarations: [
-    DeviceViewComponent,
-    DeviceResourceComponent
-  ],
+  declarations: [DeviceViewComponent, DeviceResourceComponent],
   imports: [
     CommonModule,
     FormioModule,
@@ -26,41 +24,43 @@ import { DeviceResourceComponent } from './device-resource/device-resource.compo
     RouterModule.forChild([
       {
         path: '',
-        component: FormioResourceIndexComponent
+        component: FormioResourceIndexComponent,
+        canActivate: [authGuard],
       },
       {
         path: 'new',
-        component: FormioResourceCreateComponent
+        component: FormioResourceCreateComponent,
+        canActivate: [authGuard],
       },
       {
         path: ':id',
         component: DeviceResourceComponent,
+        canActivate: [authGuard],
         children: [
           {
             path: '',
             redirectTo: 'view',
-            pathMatch: 'full'
+            pathMatch: 'full',
           },
           {
             path: 'view',
-            component: DeviceViewComponent
+            component: DeviceViewComponent,
           },
           {
             path: 'edit',
-            component: FormioResourceEditComponent
+            component: FormioResourceEditComponent,
           },
           {
             path: 'delete',
-            component: FormioResourceDeleteComponent
+            component: FormioResourceDeleteComponent,
           },
-        /*   {
+          /*   {
             path: 'participant',
             loadChildren: './participant/participant.module#ParticipantModule'
           } */
-        ]
-      }
-    ])
-
+        ],
+      },
+    ]),
   ],
   providers: [
     FormioResourceService,
@@ -68,10 +68,9 @@ import { DeviceResourceComponent } from './device-resource/device-resource.compo
       provide: FormioResourceConfig,
       useValue: {
         name: '151-0111-6525-3',
-        form: '151-0111-6525-3'
-      }
-    }
-  ]
-
+        form: '151-0111-6525-3',
+      },
+    },
+  ],
 })
-export class DeviceModule { }
+export class DeviceModule {}

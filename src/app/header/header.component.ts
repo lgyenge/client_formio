@@ -23,7 +23,7 @@ toggle_sheet(_par: HTMLButtonElement) {
 
 
   constructor(public auth: FormioAuthService, private router: Router) {
-    console.log(this.auth);
+    //console.log(this.auth);
   }
 
 

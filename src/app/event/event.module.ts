@@ -13,6 +13,7 @@ import {
 } from '@formio/angular/resource';
 import { EventViewComponent } from './event-view/event-view.component';
 import { EventResourceComponent } from './event-resource/event-resource.component';
+import { authGuard } from '../guards/auth.guard';
 
 @NgModule({
   imports: [
@@ -22,15 +23,15 @@ import { EventResourceComponent } from './event-resource/event-resource.componen
     RouterModule.forChild([
       {
         path: '',
-        component: FormioResourceIndexComponent
+        component: FormioResourceIndexComponent,canActivate: [authGuard]
       },
       {
         path: 'new',
-        component: FormioResourceCreateComponent
+        component: FormioResourceCreateComponent,canActivate: [authGuard]
       },
       {
         path: ':id',
-        component: EventResourceComponent,
+        component: EventResourceComponent,canActivate: [authGuard],
         children: [
           {
             path: '',
