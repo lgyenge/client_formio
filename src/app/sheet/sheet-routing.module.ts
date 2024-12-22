@@ -15,16 +15,17 @@ import {
   SubmissionEditComponent,
   SubmissionDeleteComponent,
 } from '@formio/angular/manager';
+import { authGuard } from '../guards/auth.guard';
 //import { SubmissionOldComponent } from './submission_old/submission_old.component';
 
 const routes: Routes = [
   {
     path: '',
-    component: DisplayFormComponent,
+    component: DisplayFormComponent,canActivate: [authGuard],
   },
   {
     path: ':id',
-    component: SheetNewComponent,
+    component: SheetNewComponent,canActivate: [authGuard],
     children: [
       {
         path: '',

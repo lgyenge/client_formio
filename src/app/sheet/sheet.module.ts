@@ -17,7 +17,7 @@ import { SubmissionComponent2 } from './submission/submission/submission.compone
 import { SubmissionViewComponent } from './submission/view/view.component';
 
 // import { FormManagerConfig, FormManagerService } from '@formio/angular/manager';
-import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
+//import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import { FormManagerViewComponent } from './view/view.component';
 
 @NgModule({
@@ -43,7 +43,7 @@ import { FormManagerViewComponent } from './view/view.component';
     FormsModule,
   ],
   providers: [
-    BsModalService,
+    //BsModalService,
     /*  FormManagerService,
     {
       provide: FormManagerConfig,

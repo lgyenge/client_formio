@@ -1,4 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  OnInit,
+  TemplateRef,
+  ViewChild,
+} from '@angular/core';
 import { FormioAppConfig } from '@formio/angular';
 import { Papa } from 'ngx-papaparse';
 import { DinetFormioForm } from '../dinet_common';
@@ -6,16 +13,38 @@ import { UploadService } from '../upload.service';
 import { LotConfig } from '../../config ';
 import { FormioAuthService } from '@formio/angular/auth';
 import { AccessSetting } from '@formio/angular';
+import { HttpErrorResponse } from '@angular/common/http';
+import { catchError, of, throwError } from 'rxjs';
+import {
+  BsModalService,
+  BsModalRef,
+  ModalDirective,
+} from 'ngx-bootstrap/modal';
+import { ModalMessageService } from '../modal-message.service';
+import { ConfirmModalComponent } from '../confirm-modal/confirm-modal.component';
 
 @Component({
   selector: 'app-upload',
   templateUrl: './upload.component.html',
   styleUrl: './upload.component.scss',
 })
-export class UploadComponent implements OnInit {
+export class UploadComponent implements OnInit, AfterViewInit {
   chunk: any;
   file: string = '';
   public importedData: Array<any> = [];
+  //modalRef!: BsModalRef;
+  //@ViewChild('modal', { read: TemplateRef })   _modalModalRef!: TemplateRef<any>;
+  @ViewChild('template') template: TemplateRef<HTMLDivElement> | null = null;
+  @ViewChild("csvInput", {static: false}) CsvInputVar: ElementRef | null = null;
+  modalRef: BsModalRef | null = null;
+  title: string = '';
+  message: string = '';
+  options: string[] = [];
+  answers: string[] = [];
+
+  error_message: string[] = [];
+  //error_code: string = '';
+
   formToUpload: DinetFormioForm | undefined;
   dataList: any;
   roles: string[] = [];
@@ -59,8 +88,14 @@ export class UploadComponent implements OnInit {
     public appConfig: FormioAppConfig,
     private papa: Papa,
     private upload: UploadService,
-    public auth: FormioAuthService
+    public auth: FormioAuthService,
+    private modalService: BsModalService,
+    private modalMessageService: ModalMessageService
   ) {}
+  ngAfterViewInit(): void {
+   // open modal dialog
+   // this.confirm();
+  }
 
   ngOnInit(): void {
     const obj = this;
@@ -88,15 +123,85 @@ export class UploadComponent implements OnInit {
   }
 
   uploadForm() {
-    console.log(this.dataList);
-    this.dataList.forEach((element: any) => {
+    // console.log(this.dataList);
+    if (this.CsvInputVar) this.CsvInputVar.nativeElement.value = "";
+    this.dataList!.forEach((element: any) => {
       this.formToUpload = this.generateForm(element);
-      console.log(this.formToUpload);
-      this.upload.uploadForm(this.formToUpload).subscribe((result) => {
-        //console.log(result);
-      });
+      //  console.log(this.formToUpload);
+      this.upload
+        .uploadForm(this.formToUpload)
+
+        .pipe(
+          //catchError(this.handleError),
+          //catchError(err => of((element as any)?.Cikkszám) + 'upload error')
+          catchError((err) => {
+            //this.message += '\n'+ ((element as any)?.Cikkszám + ' - upload error')
+            if (err.status === 0) {
+              // A client-side or network error occurred. Handle it accordingly.
+              console.error('An error occurred:', err.error);
+              this.error_message.push(
+                ` ${(element as any)?.Cikkszám} reason: ${
+                  err.error
+                } A client-side or network error occurred.`
+              );
+            } else {
+              // The backend returned an unsuccessful response code.
+              // The response body may contain clues as to what went wrong.
+              console.error(
+                `Backend returned code ${err.status}, body was: `,
+                err.error
+              );
+              this.error_message.push(
+                ` ${(element as any)?.Cikkszám}  error code: ${
+                  err.error.status
+                }, reason: ${err.error.message}`
+              );
+            }
+            return of((element as any)?.Cikkszám + ' - upload error');
+          })
+        )
+        .subscribe((result: DinetFormioForm | any) => {
+          // this.dataList = [];
+
+          //console.log((result as DinetFormioForm)?.name);
+          //console.log(this.message);
+          //console.log(result);
+        });
     });
+    // clear csv data
+    this.dataList = [];
+    //this.confirm();
   }
+
+  //confirm modal dialog
+  confirm() {
+    this.modalMessageService
+      .confirm('Confirmation dialog box', this.message, ['Yes', 'No'])
+      .subscribe((answer) => {
+        this.answers.push(answer);
+      });
+  }
+
+  /*  private handleError(error: HttpErrorResponse) {
+    //this.confirm();
+
+    if (error.status === 0) {
+      // A client-side or network error occurred. Handle it accordingly.
+      console.error('An error occurred:', error.error);
+    } else {
+      // The backend returned an unsuccessful response code.
+      // The response body may contain clues as to what went wrong.
+      console.error(
+        `Backend returned code ${error.status}, body was: `,
+        error.error
+      );
+    }
+
+    // Return an observable with a user-facing error message.
+    return throwError(
+      () => new Error('Something bad happened; please try again later.')
+    );
+  } */
 
   readCsvFromLocal($event: any) {
     const fileList = $event.srcElement.files;
