@@ -80,7 +80,7 @@ export class DisplayFormComponent implements OnInit, AfterViewInit {
       this.formGrid.footer.pageChanged.subscribe((page) => {
         localStorage.setItem('currentPage', page.page);
       });
-      //console.log(`service:`, this.service);
+      console.log(`service:`, this.service);
     });
   }
 

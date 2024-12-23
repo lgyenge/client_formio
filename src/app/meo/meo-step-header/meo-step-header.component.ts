@@ -17,7 +17,7 @@ export class MeoStepHeaderComponent implements OnInit {
   ngOnInit() {
     // nem lehetett kivenni
     this.service.setSubmission(this.route).then((formio: any) => {
-     // console.log(this.service);
+     console.log(this.service);
     });
   }
 
