@@ -1,0 +1,1 @@
+import{i as a,j as f}from"./chunk-P4YLKB57.js";import"./chunk-RYFXDC4W.js";import{p as n}from"./chunk-UNB647CC.js";import{E as t,K as i,bb as e,ob as m}from"./chunk-ICJVGW3A.js";var g=(()=>{let o=class o{};o.\u0275fac=function(s){return new(s||o)},o.\u0275mod=i({type:o}),o.\u0275inj=t({imports:[e,n,f,m.forChild(a())]});let r=o;return r})();export{g as FormModule};
