@@ -7,7 +7,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "deploy": "ng deploy --repo=https://github.com/lgyenge/client_formio.git --name='lgyenge'"
+    "deploy": "ng deploy --base-href=/client_formio/ --repo=https://github.com/lgyenge/client_formio.git --name='lgyenge'"
   },
   "private": true,
   "dependencies": {
