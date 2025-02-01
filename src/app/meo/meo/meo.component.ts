@@ -1,25 +1,25 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormioAppConfig, FormioForm, FormioService } from '@formio/angular';
 import { debounceTime, filter, Subject, switchMap, takeUntil, tap } from 'rxjs';
 import { DinetFormioForm } from '../../dinet_common';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-meo',
   templateUrl: './meo.component.html',
   styleUrl: './meo.component.scss',
 })
-export class MeoComponent implements OnInit {
+export class MeoComponent implements OnInit, OnDestroy {
   userSearchResults: DinetFormioForm[] = [];
-  //userSearchResults: any = [];
   userDisplayResults: DinetFormioForm[] = [];
-  //userDisplayResults: any = [];
 
   searchForm!: FormGroup;
   service: FormioService;
   form_ids: string[] = [];
-  private destroy$ = new Subject<void>();
+  loadFormsSubscription: Subscription = new Subscription();
+  searchFormSubscription: Subscription = new Subscription();
 
   constructor(
     public appConfig: FormioAppConfig,
@@ -33,26 +33,24 @@ export class MeoComponent implements OnInit {
   ClickedRow(i: number, form: DinetFormioForm) {
     localStorage.setItem('form_id', this.userDisplayResults[i]._id ?? '');
     this.FindStep(1, form);
-    this.router.navigate(['lot'], { relativeTo: this.route });
   }
   FindStep(i: number, form: DinetFormioForm) {
-    //let name = form.name + '-st' + i;
     let name = form.name;
-    //console.log(name)
+    //console.log(form)
     let query = {
       params: {
-        //todo: redux pontosítás
+        //todo: regex pontosítás
         name__regex: '/' + name + '/i',
         tags__eq: ['common'],
         type: 'form',
       },
     };
     //console.log('query:', query);
-    this.service
+    this.loadFormsSubscription = this.service
       .loadForms(query)
-      .pipe(takeUntil(this.destroy$))
       .subscribe((results) => {
         /* type error in formio */
+        //console.log('results:', results);
         let dinetResults = results as DinetFormioForm[];
         // reverse form order in forms
         dinetResults.sort((a, b) => {
@@ -72,19 +70,26 @@ export class MeoComponent implements OnInit {
           this.form_ids.push(element._id);
           }
         });
-        //localStorage.setItem('form_ids', JSON.stringify(this.form_ids));
         localStorage.setItem('forms', JSON.stringify(dinetResults));
         //console.log('form_ids', this.form_ids);
+        this.router.navigate(['lot'], { relativeTo: this.route });
+
       });
+  }
+
+  ngOnDestroy() {
+    this.loadFormsSubscription.unsubscribe();
+    this.searchFormSubscription.unsubscribe();
   }
 
   ngOnInit() {
     this.searchForm = this.fb.group({
       name: [''],
     });
-    this.searchForm
-      .get('name')
-      ?.valueChanges.pipe(
+    localStorage.setItem('forms', '');
+    this.searchFormSubscription = this.searchForm
+      .get('name')!
+      .valueChanges.pipe(
         debounceTime(400),
         filter((value) => value.length > 2),
         tap({
@@ -99,6 +104,7 @@ export class MeoComponent implements OnInit {
                 },
               })
             );
+            // kell ez?
             localStorage.setItem('meo_searchInput', value);
           },
         }),
@@ -109,10 +115,11 @@ export class MeoComponent implements OnInit {
           this.service.loadForms(
             JSON.parse(localStorage.getItem('meo_query') || '{}')
           )
-        ),
-        takeUntil(this.destroy$)
+        )
+        //takeUntil(this.destroy$)
       )
       .subscribe((results) => {
+        //console.log('Results in ngOnInit', results);
         this.userSearchResults = results as DinetFormioForm[];
 
         this.userDisplayResults = (results as DinetFormioForm[]).filter(

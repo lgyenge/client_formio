@@ -26,6 +26,7 @@ export class ExcelService {
       // Create worksheets with headers and footers
       // create new sheet with pageSetup settings for A4 - landscape
       let worksheet = workbook.addWorksheet(sheet.file_name, {
+        headerFooter:{firstHeader: "Hello Exceljs", firstFooter: "Hello World"},
         pageSetup: {
           paperSize: 9,
           orientation: 'landscape',
@@ -37,13 +38,14 @@ export class ExcelService {
           //showRowColHeaders: true;
           /* Repeat specific rows on every printed page */
           printTitlesRow: '1:3',
-          printTitlesColumn: 'A:B',
+          printTitlesColumn: 'A:B'
         },
-        /* Nem működik, talán mert nincs bekepcsolva az élőfej */
-        headerFooter: {
+        /* A headerFooter Nem működik, talán mert nincs bekepcsolva az élőfej, de ha utólag
+        bekapcsolom az nem jó, előre pedig nem tudom hogyan lehet bekapcsolni */
+               /*  headerFooter: {
           firstHeader: 'Biotech GmbH',
           firstFooter: 'Támogató: Dinet Kft',
-        },
+        }, */
       });
 
       // Add headers
@@ -54,9 +56,9 @@ export class ExcelService {
 
 
       /*!!!!  only for demo !!!! */
-      for (let i = 0; i < 20; i++) {
+      /* for (let i = 0; i < 20; i++) {
         worksheet.addRow(lines[0]);
-      }
+      } */
 
 
       worksheet.getRows(1, 2)?.forEach((element) => {

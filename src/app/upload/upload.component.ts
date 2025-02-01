@@ -22,13 +22,14 @@ import {
 } from 'ngx-bootstrap/modal';
 import { ModalMessageService } from '../modal-message.service';
 import { ConfirmModalComponent } from '../confirm-modal/confirm-modal.component';
+import { filter } from 'lodash';
 
 @Component({
   selector: 'app-upload',
   templateUrl: './upload.component.html',
   styleUrl: './upload.component.scss',
 })
-export class UploadComponent implements OnInit, AfterViewInit {
+export class UploadComponent implements OnInit {
   chunk: any;
   file: string = '';
   public importedData: Array<any> = [];
@@ -89,16 +90,16 @@ export class UploadComponent implements OnInit, AfterViewInit {
     private papa: Papa,
     private upload: UploadService,
     public auth: FormioAuthService,
-    private modalService: BsModalService,
+    //private modalService: BsModalService,
     private modalMessageService: ModalMessageService
   ) {}
-  ngAfterViewInit(): void {
+ /*  ngAfterViewInit(): void {
    // open modal dialog
    // this.confirm();
-  }
+  } */
 
   ngOnInit(): void {
-    const obj = this;
+    //const obj = this;
     this.auth.ready.then(() => {
       this.roles.push(this.auth.roles.administrator._id);
       this.roles.push(this.auth.roles.authenticated._id);
@@ -257,6 +258,11 @@ export class UploadComponent implements OnInit, AfterViewInit {
 
     let submit = {
       type: 'button',
+      /* a form szerkesztéskor mégegy submit buttont
+      hozzáad  a csv - ből beolvasásotthoz
+      ha a key nem submit akkor mind a két gomb működik,
+      de egyik megoldás sem tökéletes */
+      //key: 'submit_csv',
       action: 'submit',
       label: 'Submit',
       theme: 'primary',
@@ -284,6 +290,11 @@ export class UploadComponent implements OnInit, AfterViewInit {
       key: 'lot1',
       type: 'select',
       searchField: 'data.lot__regex',
+      filter: 'data.inproduction__eq',
+      validate: {
+        required: true,
+        select: false
+        },
       noRefreshOnScroll: false,
       addResource: false,
       reference: false,

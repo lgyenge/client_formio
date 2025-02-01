@@ -15,13 +15,21 @@ import { DinetFormioForm, SheetData } from '../../dinet_common';
 })
 export class MeoExcelComponent implements OnInit {
   services: FormioService[] = [] // | undefined;
-  query = JSON.parse(localStorage.getItem('meo_query') || '{}');
   forms: DinetFormioForm[] = JSON.parse(localStorage.getItem('forms') ?? '[]');
   keys: (string | undefined)[] = [];
   labels: (string | undefined)[] = [];
   row: string[] = [];
   rows: string[][] = [];
   lot: string = localStorage.getItem('lot_no') || 'noLot';
+  query = {
+    params: {
+     'data.lot1__eq': this.lot,
+     'limit': 100,
+     'sort': 'data.serial',
+     'skip': 0
+    },
+  };
+
   sheetData: SheetData[] = [];
   constructor(
     public appConfig: FormioAppConfig,

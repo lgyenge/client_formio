@@ -52,6 +52,7 @@ export class MeoLotComponent implements OnInit {
               JSON.stringify({
                 params: {
                   'data.lot__regex': '/' + value + '/i',
+                  'data.inproduction': 'true',
                   type: 'resource',
                 },
               })
