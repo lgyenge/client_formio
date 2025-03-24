@@ -35,8 +35,9 @@ export class MeoStepIndexComponent implements OnInit, OnDestroy {
     this.subscription = this.dataService.getMessage.subscribe((msg: any) => {
       this.msg = msg;
       this.service.ready.then(() => {
+        // Ezt ki kelle venni !!!!
         this.formGrid.formio = new Formio(
-          this.appConfig.appUrl + '/form/' + msg, 
+          this.appConfig.appUrl + '/form/' + msg
         ) as unknown as FormioPromiseService;
         this.formGrid.refreshGrid(this.query);
       });

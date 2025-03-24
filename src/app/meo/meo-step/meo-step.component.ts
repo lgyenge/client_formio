@@ -42,6 +42,7 @@ export class MeoStepComponent implements OnInit {
       this.updateForm(params['id']);
     });
     this.service.reset(this.route);
+    console.log(this.service);
     //console.log(this.auth)
   }
 }

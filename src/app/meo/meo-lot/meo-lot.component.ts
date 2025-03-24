@@ -47,12 +47,21 @@ export class MeoLotComponent implements OnInit {
         filter((value) => value.length > 1),
         tap({
           next: (value: any) => {
+            /* localStorage.setItem(
+              'meo_lot_query',
+              JSON.stringify({
+                params: {
+                  'data.lot__regex': '/' + value + '/i',
+                  'data.inproduction':'true',
+                  type: 'resource',
+                },
+              })
+            ); */
             localStorage.setItem(
               'meo_lot_query',
               JSON.stringify({
                 params: {
                   'data.lot__regex': '/' + value + '/i',
-                  'data.inproduction': 'true',
                   type: 'resource',
                 },
               })
@@ -62,7 +71,7 @@ export class MeoLotComponent implements OnInit {
         }),
         switchMap((value: any) =>
           this.service.loadSubmissions(
-            JSON.parse(localStorage.getItem('meo_lot_query') || '{}')
+            JSON.parse( '{}')
           )
         ),
         takeUntil(this.destroy$)
