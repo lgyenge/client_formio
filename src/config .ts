@@ -30,6 +30,9 @@ export const AppConfig: FormioAppConfig = {
 
 /*
 //server - formio
+
+/*
+//server - formio
 export const LotConfig = {
   lotId: '66f67387bad81693536044c3',
 }; */
