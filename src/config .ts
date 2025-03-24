@@ -27,8 +27,17 @@ export const AppConfig: FormioAppConfig = {
   //apiUrl: 'https://a3ae-2001-4c4c-1959-4f00-00-1007.ngrok-free.app',
   icons: 'fontawesome',
 };
+
+/*
+//server - formio
 export const LotConfig = {
   lotId: '66f67387bad81693536044c3',
+}; */
+
+//server - formio_450
+export const LotConfig = {
+ // lotId: '67c3088b5ef3a25d7535d8ba',
+  lotId: '67e016961904985aaad53d2e',
 };
 /* !!!!!!!!!!!!!!!!!!!!!!!!local app cofig end !!!!!!!!!!!!!!!!!!!!!!!! */
 

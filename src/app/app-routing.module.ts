@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { FormComponent } from './form/form.component';
 import { HomeComponent } from './home/home.component';
 import { authGuard } from './guards/auth.guard';
+import { authAdminGuard } from './guards/auth-admin.guard';
 
 const routes: Routes = [
   {
@@ -65,6 +66,15 @@ const routes: Routes = [
     loadChildren: () =>
       import('./upload/upload.module').then((m) => m.UploadModule),
     canActivate: [authGuard],
+  },
+
+  {
+    path: 'create-resource',
+    loadChildren: () =>
+      import('./create-resource/create-resource.module').then(
+        (m) => m.CreateResourceModule
+      ),
+    canActivate: [authAdminGuard],
   },
   { path: '**', component: HomeComponent },
 ];
