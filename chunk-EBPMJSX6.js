@@ -1,1 +1,0 @@
-var o={appUrl:"https://trai.dimeb.hu",apiUrl:"https://trai.dimeb.hu",icons:"fontawesome"},t={lotId:"66f800b85745f22fe9d17440"},r={login:{form:"user/login"},register:{form:"user/register"}};export{o as a,t as b,r as c};
