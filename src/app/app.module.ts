@@ -20,15 +20,7 @@ import { FormComponent } from './form/form.component';
 // különben nem ismeri fel a formio-grid komponenst
 import { FormioGrid } from '@formio/angular/grid';
 import { ExcelExampleComponent } from './excel-example/excel-example.component';
-/* import {
-  BsModalService,
-  BsModalRef,
-  ModalDirective,
-  ModalModule,
-} from 'ngx-bootstrap/modal'; */
-import { ConfirmModalComponent } from './confirm-modal/confirm-modal.component';
 
-//import { DataService } from './data.service';
 
 @NgModule({
   declarations: [
@@ -38,7 +30,6 @@ import { ConfirmModalComponent } from './confirm-modal/confirm-modal.component';
     HomeComponent,
     HeaderComponent,
     ExcelExampleComponent,
-    ConfirmModalComponent,
   ],
   imports: [
     BrowserModule,
@@ -46,12 +37,8 @@ import { ConfirmModalComponent } from './confirm-modal/confirm-modal.component';
     FormioGrid,
     AppRoutingModule,
     HttpClientModule,
-//    ModalModule.forRoot(), //<<======
   ],
-  exports: [ConfirmModalComponent],
   providers: [
-    //BsModalService,
-    //DataService,
     FormioResources,
     FormioAuthService,
     FormManagerService,
