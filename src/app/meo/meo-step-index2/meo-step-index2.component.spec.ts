@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { MeoLotComponent } from './meo-lot.component';
+import { MeoStepIndex2Component } from './meo-step-index2.component';
 
-describe('MeoLotComponent', () => {
-  let component: MeoLotComponent;
-  let fixture: ComponentFixture<MeoLotComponent>;
+describe('MeoStepIndex2Component', () => {
+  let component: MeoStepIndex2Component;
+  let fixture: ComponentFixture<MeoStepIndex2Component>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [MeoLotComponent]
+      declarations: [MeoStepIndex2Component]
     })
     .compileComponents();
     
-    fixture = TestBed.createComponent(MeoLotComponent);
+    fixture = TestBed.createComponent(MeoStepIndex2Component);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

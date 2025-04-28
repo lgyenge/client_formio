@@ -8,9 +8,6 @@ import { FormioAuthService } from '@formio/angular/auth';
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
-/* export class AppComponent {
-  title = 'client_formio';
-} */
 export class AppComponent {
   title = 'client_formio';
 

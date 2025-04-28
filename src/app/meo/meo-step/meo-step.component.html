@@ -1,9 +1,20 @@
 <ul aria-label="Submission" role="navigation" class="nav nav-tabs" style="margin-bottom:10px">
-  <li class="nav-item"><a class="nav-link" routerLink="../../"><em class="fa fa-chevron-left bi bi-chevron-left"></em></a></li>
-  <li class="nav-item" routerLinkActive="active"><a class="nav-link" routerLink={{header}} routerLinkActive="active"> #0</a></li>
-  <li *ngIf="forms[1]?._id" class="nav-item" routerLinkActive="active"><a class="nav-link" routerLink={{header1}} routerLinkActive="active"> #1</a></li>
-  <li *ngIf="forms[2]?._id" class="nav-item" routerLinkActive="active"><a class="nav-link" routerLink="{{header2}}" routerLinkActive="active"> #2</a></li>
-  <li *ngIf="auth.is.administrator" class="nav-item" routerLinkActive="active"><a class="nav-link" routerLink="save" routerLinkActive="active">Excel</a></li>
-  <li class="nav-item" routerLinkActive="active"><a class="nav-link" routerLink="new" routerLinkActive="active">New</a></li>
+    <li class="nav-item"><a class="nav-link" routerLink="../../"><em
+                class="fa fa-chevron-left bi bi-chevron-left"></em></a>
+    </li>
+    <ng-container *ngFor="let form of forms ; index as i; ">
+        <li *ngIf="(auth.is.administrator || (suffixes[i].name !='H') && (suffixes[i].name !='ekt'))">
+            <a class="nav-link" routerLink="/meo/step/{{(forms[i]._id)}}/header" routerLinkActive="active">
+                {{suffixes[i].name}}</a>
+        </li>
+    </ng-container>
+
+
+    <li *ngIf="auth.is.administrator" class="nav-item" routerLinkActive="active"><a class="nav-link" routerLink="save"
+            routerLinkActive="active">Excel</a>
+    </li>
+    <li class="nav-item" routerLinkActive="active"><a class="nav-link" routerLink="new"
+            routerLinkActive="active">New</a>
+    </li>
 </ul>
 <router-outlet></router-outlet>

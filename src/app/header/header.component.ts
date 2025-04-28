@@ -8,6 +8,11 @@ import { FormioAuthService } from '@formio/angular/auth';
   styleUrls: ['./header.component.sass']
 })
 export class HeaderComponent  {
+logout() {
+localStorage.removeItem('user');
+localStorage.removeItem('token');
+this.auth.logout();
+}
 toggle_meo(_par: HTMLButtonElement) {
   this.router.navigate(['/', 'meo']);
 }

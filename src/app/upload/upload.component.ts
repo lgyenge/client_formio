@@ -1,43 +1,32 @@
 import {
-  AfterViewInit,
   Component,
   ElementRef,
+  OnDestroy,
   OnInit,
   TemplateRef,
   ViewChild,
 } from '@angular/core';
 import { FormioAppConfig } from '@formio/angular';
 import { Papa } from 'ngx-papaparse';
-import { DinetFormioForm } from '../dinet_common';
+import { DinetFormioForm, Suffix } from '../dinet_common';
 import { UploadService } from '../upload.service';
-import { LotConfig } from '../../config ';
 import { FormioAuthService } from '@formio/angular/auth';
 import { AccessSetting } from '@formio/angular';
-import { HttpErrorResponse } from '@angular/common/http';
-import { catchError, of, throwError } from 'rxjs';
-import {
-  BsModalService,
-  BsModalRef,
-  ModalDirective,
-} from 'ngx-bootstrap/modal';
-import { ModalMessageService } from '../modal-message.service';
-import { ConfirmModalComponent } from '../confirm-modal/confirm-modal.component';
-import { filter } from 'lodash';
+import { catchError, of, Subscription } from 'rxjs';
+import { forEach } from 'lodash';
 
 @Component({
   selector: 'app-upload',
   templateUrl: './upload.component.html',
   styleUrl: './upload.component.scss',
 })
-export class UploadComponent implements OnInit {
+export class UploadComponent implements OnInit , OnDestroy {
+  subForms: Array<any> | undefined;
   chunk: any;
   file: string = '';
   public importedData: Array<any> = [];
-  //modalRef!: BsModalRef;
-  //@ViewChild('modal', { read: TemplateRef })   _modalModalRef!: TemplateRef<any>;
   @ViewChild('template') template: TemplateRef<HTMLDivElement> | null = null;
-  @ViewChild("csvInput", {static: false}) CsvInputVar: ElementRef | null = null;
-  modalRef: BsModalRef | null = null;
+  @ViewChild("csvInput", { static: false }) CsvInputVar: ElementRef | null = null;
   title: string = '';
   message: string = '';
   options: string[] = [];
@@ -45,10 +34,14 @@ export class UploadComponent implements OnInit {
 
   error_message: string[] = [];
   //error_code: string = '';
-
+  headerFormToUpload: DinetFormioForm | undefined;
   formToUpload: DinetFormioForm | undefined;
+  results: any;
   dataList: any;
+
   roles: string[] = [];
+  uploadSubscription: Subscription | undefined;
+  headerUploadSubscription: Subscription | undefined;
   accessSetting: AccessSetting = {
     type: 'read_all',
     roles: [],
@@ -90,16 +83,26 @@ export class UploadComponent implements OnInit {
     private papa: Papa,
     private upload: UploadService,
     public auth: FormioAuthService,
-    //private modalService: BsModalService,
-    private modalMessageService: ModalMessageService
-  ) {}
- /*  ngAfterViewInit(): void {
-   // open modal dialog
-   // this.confirm();
-  } */
+  ) { }
+  ngOnDestroy(): void {
+    // Clean up any resources or subscriptions to avoid memory leaks
+    this.subForms = undefined;
+    this.headerFormToUpload = undefined;
+    this.formToUpload = undefined;
+    this.dataList = undefined;
+    this.importedData = [];
+    this.error_message = [];
+    if (this.uploadSubscription) {
+      this.uploadSubscription.unsubscribe();
+    }
+    if (this.headerUploadSubscription) {
+      this.headerUploadSubscription.unsubscribe();
+    }
+
+    console.log('UploadComponent destroyed and resources cleaned up.');
+  }
 
   ngOnInit(): void {
-    //const obj = this;
     this.auth.ready.then(() => {
       this.roles.push(this.auth.roles.administrator._id);
       this.roles.push(this.auth.roles.authenticated._id);
@@ -124,85 +127,93 @@ export class UploadComponent implements OnInit {
   }
 
   uploadForm() {
-    // console.log(this.dataList);
     if (this.CsvInputVar) this.CsvInputVar.nativeElement.value = "";
-    this.dataList!.forEach((element: any) => {
-      this.formToUpload = this.generateForm(element);
-      //  console.log(this.formToUpload);
-      this.upload
-        .uploadForm(this.formToUpload)
+    const mainForms: Array<{ Cikkszám: string }> = this.dataList!.filter((element: { Cikkszám: string }) =>
+      (element.Cikkszám as string).indexOf("XX") != -1
+    );
 
-        .pipe(
-          //catchError(this.handleError),
-          //catchError(err => of((element as any)?.Cikkszám) + 'upload error')
-          catchError((err) => {
-            //this.message += '\n'+ ((element as any)?.Cikkszám + ' - upload error')
-            if (err.status === 0) {
-              // A client-side or network error occurred. Handle it accordingly.
-              console.error('An error occurred:', err.error);
-              this.error_message.push(
-                ` ${(element as any)?.Cikkszám} reason: ${
+    this.dataList.map((element: any) => {
+      element.Cikkszám = element.Cikkszám.toLowerCase()
+      return element
+    })
+
+    console.log('mainForms', mainForms);
+    //console.log('dataList', this.dataList);
+    mainForms.forEach((mainForm) => {
+      this.subForms = [];
+      this.dataList.forEach((element: any) => {
+        //console.log('element.Cikkszám', element.Cikkszám.substring(0, element.Cikkszám.indexOf('xx')))
+        //console.log('mainForm.Cikkszám', mainForm.Cikkszám.substring(0, mainForm.Cikkszám.indexOf('xx')))
+        if (element.Cikkszám.substring(0, element.Cikkszám.indexOf('xx')) == mainForm.Cikkszám.substring(0, mainForm.Cikkszám.indexOf('xx'))) {
+          this.subForms?.push(element)
+        }
+      })
+
+      console.log('subForms', this.subForms);
+      this.subForms!.forEach((element: any) => {
+        //element.Cikkszám = element.Cikkszám.toLowerCase();
+        this.formToUpload = this.generateForm(element);
+        this.uploadSubscription = this.upload
+          .uploadForm(this.formToUpload)
+          .pipe(
+            catchError((err) => {
+              if (err.status === 0) {
+                console.error('An error occurred:', err.error);
+                this.error_message.push(
+                  ` ${(element as any)?.Cikkszám} reason: ${err.error
+                  } A client-side or network error occurred.`
+                );
+              } else {
+                console.error(
+                  `Backend returned code ${err.status}, body was: `,
                   err.error
-                } A client-side or network error occurred.`
-              );
-            } else {
-              // The backend returned an unsuccessful response code.
-              // The response body may contain clues as to what went wrong.
-              console.error(
-                `Backend returned code ${err.status}, body was: `,
-                err.error
-              );
-              this.error_message.push(
-                ` ${(element as any)?.Cikkszám}  error code: ${
-                  err.error.status
-                }, reason: ${err.error.message}`
-              );
-            }
-            return of((element as any)?.Cikkszám + ' - upload error');
-          })
-        )
-        .subscribe((result: DinetFormioForm | any) => {
-          // this.dataList = [];
+                );
+                this.error_message.push(
+                  ` ${(element as any)?.Cikkszám}  error code: ${err.error.status
+                  }, reason: ${err.error.message}`
+                );
+              }
+              return of((element as any)?.Cikkszám + ' - upload error');
+            })
+          )
+          .subscribe((result: DinetFormioForm | any) => {
+          });
+      });
+      this.headerFormToUpload = this.generateHeaderForm(this.subForms![0]);
+      //console.log('hederrFormToUpload', this.headerFormToUpload);
+        this.headerUploadSubscription =this.upload
+         .uploadForm(this.headerFormToUpload).pipe(
+           catchError((err) => {
+             if (err.status === 0) {
+               // A client-side or network error occurred. Handle it accordingly.
+               console.error('An error occurred:', err.error);
+               this.error_message.push(
+                 ` ${(this.dataList![0] as any)?.Cikkszám} reason: ${err.error
+                 } A client-side or network error occurred.`
+               );
+             } else {
+               // The backend returned an unsuccessful response code.
+               // The response body may contain clues as to what went wrong.
+               console.error(
+                 `Backend returned code ${err.status}, body was: `,
+                 err.error
+               );
+               this.error_message.push(
+                 ` ${(this.dataList![0] as any)?.Cikkszám}  error code: ${err.error.status
+                 }, reason: ${err.error.message}`
+               );
+             }
+             return of((this.dataList![0] as any)?.Cikkszám + ' - upload error');
+           })
+         )
+         .subscribe((result: DinetFormioForm | any) => {
+         }); 
 
-          //console.log((result as DinetFormioForm)?.name);
-          //console.log(this.message);
-          //console.log(result);
-        });
-    });
+    })
+
     // clear csv data
     this.dataList = [];
-    //this.confirm();
   }
-
-  //confirm modal dialog
-  confirm() {
-    this.modalMessageService
-      .confirm('Confirmation dialog box', this.message, ['Yes', 'No'])
-      .subscribe((answer) => {
-        this.answers.push(answer);
-      });
-  }
-
-  /*  private handleError(error: HttpErrorResponse) {
-    //this.confirm();
-
-    if (error.status === 0) {
-      // A client-side or network error occurred. Handle it accordingly.
-      console.error('An error occurred:', error.error);
-    } else {
-      // The backend returned an unsuccessful response code.
-      // The response body may contain clues as to what went wrong.
-      console.error(
-        `Backend returned code ${error.status}, body was: `,
-        error.error
-      );
-    }
-
-    // Return an observable with a user-facing error message.
-    return throwError(
-      () => new Error('Something bad happened; please try again later.')
-    );
-  } */
 
   readCsvFromLocal($event: any) {
     const fileList = $event.srcElement.files;
@@ -238,12 +249,160 @@ export class UploadComponent implements OnInit {
 
   papaParseComplete(results: any) {
     //console.log('Results', results.data);
-    //console.log(results);
     this.dataList = results.data;
+    this.results = results.data;
   }
 
   generateForm(nfdata: any) {
     let end = '';
+    let newform: DinetFormioForm = {
+      title: '',
+      display: 'form',
+      type: 'form',
+      name: '',
+      path: '',
+      tags: ['common'],
+      components: [],
+      access: [],
+      submissionAccess: [],
+    };
+
+    let submit = {
+      type: 'button',
+      /** a form szerkesztéskor mégegy submit buttont
+      hozzáad  a csv - ből beolvasásotthoz
+      ha a key nem submit akkor mind a két gomb működik,
+      de egyik megoldás sem tökéletes */
+      //key: 'submit_csv',
+      action: 'submit',
+      label: 'Submit',
+      theme: 'primary',
+    };
+
+
+    let user = this.setTextfield('user');
+    user.customDefaultValue = 'value = user.data.email;';
+    user.disabled = true;
+
+    newform.name = nfdata.Cikkszám + end;
+    newform.title = nfdata.Cikkszám + ' (' + nfdata.Megnevezés + ')';
+    newform.path = nfdata.Cikkszám + end;
+    newform.components?.push(user);
+    let lot = this.setTextfield('lot');
+    //!!! lot1 fontos !!!
+    lot.key = 'lot1';
+    lot.disabled = true;
+    newform.components?.push(lot);
+
+    let serial = this.setNumber('serial', '', 'serial');
+    serial.label = 'serial';
+    serial.key = 'serial';
+    newform.components?.push(serial);
+
+    for (let i = 0; i < Object.keys(nfdata).length / 3; i++) {
+      if (nfdata['Tp-' + i] == 'n') {
+        let numf = this.setNumber(nfdata['Par-' + i], nfdata['Tr-' + i], i, nfdata['No-' + i], nfdata['Mi-' + i], nfdata['Pl-' + i]);
+        newform.components?.push(numf);
+      } else if (nfdata['Tp-' + i] == 'b') {
+        let chkb = this.setCheckbox(nfdata['Par-' + i], nfdata['Tr-' + i], i);
+        newform.components?.push(chkb);
+      }
+    }
+    newform.components?.push(submit);
+
+    newform.access?.push(this.accessSetting);
+
+    newform.submissionAccess?.push(this.accessSubmissionCreateAll);
+    newform.submissionAccess?.push(this.accessSubmissionReadAll);
+    newform.submissionAccess?.push(this.accessSubmissionUpdateAll);
+    newform.submissionAccess?.push(this.accessSubmissionDeleteAll);
+    newform.submissionAccess?.push(this.accessSubmissionCreateOwn);
+    newform.submissionAccess?.push(this.accessSubmissionReadOwn);
+    newform.submissionAccess?.push(this.accessSubmissionUpdateOwn);
+    newform.submissionAccess?.push(this.accessSubmissionDeleteOwn);
+
+    return newform;
+  }
+  setTextfield(par: string) {
+    var tx = {
+      type: 'textfield',
+      label: '',
+      key: '',
+      input: true,
+      hidden: false,
+      disabled: false,
+      customDefaultValue: '',
+    };
+    tx.label = par;
+    tx.key = par;
+    tx.hidden = false;
+    return tx;
+  }
+
+  setCheckbox(par: string, tr: string, i: any) {
+    var cb = {
+      label: 'Checkbox',
+      tableView: true,
+      key: 'checkbox',
+      type: 'checkbox',
+      input: true,
+    };
+
+    cb.label = par + '(' + tr + ')';
+    cb.key = 'par' + i;
+    return cb;
+  }
+
+  setNumber(par: string, tr: string, i: any, nominalValue?: number, toleranceMin?: number, toleranceMax?: number,) {
+    //console.log(par);
+    let nf = {
+      input: true,
+      tableView: true,
+      inputType: 'number',
+      inputMask: '',
+      label: 'First Name',
+      key: 'firstName',
+      placeholder: '',
+      prefix: '',
+      suffix: '',
+      defaultValue: '',
+      protected: false,
+      unique: false,
+      persistent: true,
+      /** ez önmagában kevés  a vesszőhöz*/
+      //decimalSymbol: ',',
+      validate: {
+        required: false,
+        minLength: 0,
+        maxLength: 50,
+        pattern: '',
+        custom: '',
+        customPrivate: false,
+      },
+      conditional: {
+        show: false,
+        when: '',
+        eq: '',
+      },
+      type: 'number',
+      tags: [],
+      lockKey: true,
+      isNew: false,
+      // todo !!!!!!!!!!!!!!!!!!!
+      properties: {
+        nominalValue: nominalValue,
+        toleranceMin: toleranceMin,
+        toleranceMax: toleranceMax
+      }
+    };
+
+    nf.label = par + '(' + tr + ')';
+    nf.key = 'par' + i;
+    return nf;
+  }
+
+  generateHeaderForm(nfdata: any) {
+    let end = 'Header';
     let newform: DinetFormioForm = {
       title: '',
       display: 'form',
@@ -268,69 +427,49 @@ export class UploadComponent implements OnInit {
       theme: 'primary',
     };
 
-    let lot = {
-      label: 'lot',
-      widget: 'choicesjs',
-      tableView: true,
-      dataSrc: 'resource',
-      /*
-       data: {
-        resource: '66f67387bad81693536044c3',
-      },  */
-      data: {
-        resource: LotConfig.lotId,
-      },
-
-      valueProperty: 'data.lot',
-      template: '<span>{{ item.data.lot }}</span>',
-      /* validate: { //most vettem ki !!!!
-        select: false,
-      }, */
-      validateWhenHidden: false,
-      key: 'lot1',
-      type: 'select',
-      searchField: 'data.lot__regex',
-      filter: 'data.inproduction__eq',
-      validate: {
-        required: true,
-        select: false
-        },
-      noRefreshOnScroll: false,
-      addResource: false,
-      reference: false,
-      input: true,
-    };
-
-    let user = setTextfield('user');
-    // user.customDefaultValue = "value = Formio.getUser().data.email;"
-    //user.customDefaultValue = "value = localStorage.getItem(formioUser).data.email;"
+    newform.name = nfdata.Cikkszám.substring(0, nfdata.Cikkszám.indexOf('xx')) + "xxH";
+    newform.title = newform.name;
+    newform.path = newform.name;
+    let user = this.setTextfield('user');
     user.customDefaultValue = 'value = user.data.email;';
     user.disabled = true;
-
-    newform.name = nfdata.Cikkszám + end;
-    newform.title = nfdata.Cikkszám + ' (' + nfdata.Megnevezés + ')';
-    newform.path = nfdata.Cikkszám + end;
     newform.components?.push(user);
-    newform.components?.push(lot);
-
-    let serial = setNumber('serial', '', 'serial');
+    let serial = this.setNumber('serial', '', 'serial');
     serial.label = 'serial';
     serial.key = 'serial';
     newform.components?.push(serial);
+    let lot = this.setTextfield('lot');
+    lot.key = 'lot1';
+    //!!! lot1 fontos !!!
+    lot.disabled = true;
+    newform.components?.push(lot);
 
-    for (let i = 0; i < Object.keys(nfdata).length / 3; i++) {
-      if (nfdata['Tp-' + i] == 'n') {
-        let numf = setNumber(nfdata['Par-' + i], nfdata['Tr-' + i], i);
-        newform.components?.push(numf);
-      } else if (nfdata['Tp-' + i] == 'b') {
-        let chkb = setCheckbox(nfdata['Par-' + i], nfdata['Tr-' + i], i);
-        newform.components?.push(chkb);
+    this.subForms!.forEach((form: any, i: number) => {
+
+      let suffix = "";
+      //console.log('form.Cikkszám', form.Cikkszám);
+      if (form.Cikkszám) {
+        if (form.Cikkszám.indexOf('xx') !== -1) {
+          suffix = form.Cikkszám.substring(form.Cikkszám.indexOf('xx') + 2, form.Cikkszám.length);
+        } else {
+          suffix = "NH";
+        }
       }
-    }
+      let numf = this.setNumber("aa" + i, "In", i);
+      numf.label = 'In-' + suffix;
+      /* numf.key = 'In' + form.Cikkszám + suffix; */
+      numf.key = 'In' + suffix;
+      newform.components?.push(numf);
+      numf = this.setNumber("#" + i, "Out", i);
+      numf.label = 'Out-' + suffix
+      /* numf.key = 'Out' + form.Cikkszám + suffix; */
+      numf.key = 'Out' + suffix;
+      newform.components?.push(numf);
+
+    });
+
     newform.components?.push(submit);
-
     newform.access?.push(this.accessSetting);
-
     newform.submissionAccess?.push(this.accessSubmissionCreateAll);
     newform.submissionAccess?.push(this.accessSubmissionReadAll);
     newform.submissionAccess?.push(this.accessSubmissionUpdateAll);
@@ -339,76 +478,6 @@ export class UploadComponent implements OnInit {
     newform.submissionAccess?.push(this.accessSubmissionReadOwn);
     newform.submissionAccess?.push(this.accessSubmissionUpdateOwn);
     newform.submissionAccess?.push(this.accessSubmissionDeleteOwn);
-
     return newform;
-
-    function setNumber(par: string, tr: string, i: any) {
-      //console.log(par);
-      var nf = {
-        input: true,
-        tableView: true,
-        inputType: 'number',
-        inputMask: '',
-        label: 'First Name',
-        key: 'firstName',
-        placeholder: '',
-        prefix: '',
-        suffix: '',
-        defaultValue: '',
-        protected: false,
-        unique: false,
-        persistent: true,
-        validate: {
-          required: false,
-          minLength: 0,
-          maxLength: 50,
-          pattern: '',
-          custom: '',
-          customPrivate: false,
-        },
-        conditional: {
-          show: false,
-          when: '',
-          eq: '',
-        },
-        type: 'number',
-        tags: [],
-        lockKey: true,
-        isNew: false,
-      };
-
-      nf.label = par + '(' + tr + ')';
-      nf.key = 'par' + i;
-      return nf;
-    }
-
-    function setCheckbox(par: string, tr: string, i: any) {
-      var cb = {
-        label: 'Checkbox',
-        tableView: true,
-        key: 'checkbox',
-        type: 'checkbox',
-        input: true,
-      };
-
-      cb.label = par + '(' + tr + ')';
-      cb.key = 'par' + i;
-      return cb;
-    }
-
-    function setTextfield(par: string) {
-      var tx = {
-        type: 'textfield',
-        label: '',
-        key: '',
-        input: true,
-        hidden: false,
-        disabled: false,
-        customDefaultValue: '',
-      };
-      tx.label = par;
-      tx.key = par;
-      return tx;
-    }
   }
 }

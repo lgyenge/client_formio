@@ -15,6 +15,8 @@ export class MeoViewComponent {
   public onSuccess: EventEmitter<object> = new EventEmitter();
   public onError: EventEmitter<object> = new EventEmitter();
   public onSubmitDone: EventEmitter<object> = new EventEmitter();
+  lot_no = localStorage.getItem('lot_no');
+
   constructor(
     public service: FormManagerService,
     public router: Router,
@@ -25,9 +27,8 @@ export class MeoViewComponent {
     this.renderOptions = {
       saveDraft: this.config.saveDraft,
     };
-    this.submission = { data: {} };
+    this.submission = { };
   }
-
   onSubmit(submission: any) {
     this.router.navigate(['../', 'header'], { relativeTo: this.route });
   }

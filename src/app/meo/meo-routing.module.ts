@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { MeoComponent } from './meo/meo.component';
-import { MeoLotComponent } from './meo-lot/meo-lot.component';
 import { MeoStepComponent } from './meo-step/meo-step.component';
 import { MeoStepIndexComponent } from './meo-step-index/meo-step-index.component';
 import {
@@ -16,17 +15,14 @@ import { MeoStepEditComponent } from './meo-step-edit/meo-step-edit.component';
 import { MeoViewComponent } from './meo-view/meo-view.component';
 import { MeoExcelComponent } from './meo-excel/meo-excel.component';
 import { authGuard } from '../guards/auth.guard';
+import { Meo2Component } from './meo2/meo2.component';
+import { MeoStepIndex2Component } from './meo-step-index2/meo-step-index2.component';
 
 const routes: Routes = [
-  { path: '', component: MeoComponent, canActivate: [authGuard] },
+  { path: '', component: Meo2Component, canActivate: [authGuard] },
   {
-    path: 'lot',
-    component: MeoLotComponent,
-    pathMatch: 'full',
-    canActivate: [authGuard],
-  },
-  {
-    path: 'lot/step/:id',
+    path: 'step/:id',
+
     component: MeoStepComponent,
     canActivate: [authGuard],
     children: [
@@ -37,7 +33,7 @@ const routes: Routes = [
       },
       {
         path: 'header',
-        component: MeoStepIndexComponent,
+        component: MeoStepIndex2Component,
         pathMatch: 'full',
       },
       {
@@ -71,11 +67,6 @@ const routes: Routes = [
             path: 'delete',
             component: SubmissionDeleteComponent,
           },
-
-          /*  {
-            path: 'new',
-            component: FormManagerViewComponent,
-          }, */
         ],
       },
     ],

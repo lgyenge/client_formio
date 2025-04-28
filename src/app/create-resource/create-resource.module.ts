@@ -4,6 +4,14 @@ import { CommonModule } from '@angular/common';
 import { CreateResourceRoutingModule } from './create-resource-routing.module';
 import { CreateResourceComponent } from './create-resource.component';
 
+import {
+  FormioResource,
+  FormioResourceRoutes,
+  FormioResourceConfig,
+  FormioResourceService
+} from '@formio/angular/resource';
+//import { CreateResourceViewComponent } from './create-resource-view/create-resource-view.component';
+
 
 @NgModule({
   declarations: [
@@ -12,6 +20,13 @@ import { CreateResourceComponent } from './create-resource.component';
   imports: [
     CommonModule,
     CreateResourceRoutingModule
+  ],
+  providers: [
+    FormioResourceService,
+    {provide: FormioResourceConfig, useValue: {
+      name: 'lot',
+      form: 'lot'
+    }}
   ]
 })
 export class CreateResourceModule { }

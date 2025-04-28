@@ -22,9 +22,9 @@ const routes: Routes = [
   {
     path: 'form',
     loadChildren: () => import('./form/form.module').then((m) => m.FormModule),
-    canActivate: [authGuard],
+    canActivate: [authAdminGuard],
   },
-  {
+ /*  {
     path: 'event',
     // This is a route configuration that will load the EventModule
     // when the route URL is '/event'. The loadChildren property
@@ -35,27 +35,27 @@ const routes: Routes = [
     loadChildren: () =>
       import('./event/event.module').then((m) => m.EventModule),
     canActivate: [authGuard],
-  },
-  {
+  }, */
+ /*  {
     path: 'implant',
     loadChildren: () =>
       import('./implant/implant.module').then((m) => m.implantModule),
     canActivate: [authGuard],
-  },
-  {
+  }, */
+  /* {
     path: 'device',
     loadChildren: () =>
       import('./device/device.module').then((m) => m.DeviceModule),
     canActivate: [authGuard],
-  },
+  }, */
 
-  { path: 'gyl', component: FormComponent },
-  {
+ /*  { path: 'gyl', component: FormComponent }, */
+ /*  {
     path: 'sheet',
     loadChildren: () =>
       import('./sheet/sheet.module').then((m) => m.SheetModule),
     canActivate: [authGuard],
-  },
+  }, */
   {
     path: 'meo',
     loadChildren: () => import('./meo/meo.module').then((m) => m.MeoModule),
@@ -65,7 +65,7 @@ const routes: Routes = [
     path: 'upload',
     loadChildren: () =>
       import('./upload/upload.module').then((m) => m.UploadModule),
-    canActivate: [authGuard],
+    canActivate: [authAdminGuard],
   },
 
   {

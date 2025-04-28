@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { Suffix } from './dinet_common';
 
 
 @Injectable({
@@ -8,11 +9,11 @@ import { BehaviorSubject } from 'rxjs';
 export class DataService {
 
   constructor() { }
-  private message = new BehaviorSubject<string>('Initial message!!!');
-  getMessage = this.message.asObservable();
 
-
-  sendMessage(message: string) {
-    this.message.next(message)
+  private message: BehaviorSubject<Suffix | null> = new BehaviorSubject<Suffix | null>(null);
+  public readonly message$: Observable<Suffix | null> = this.message.asObservable();
+  sendMessage(message: Suffix) {
+    console.log('sendMessage', message);
+    this.message.next(message);
   }
 }

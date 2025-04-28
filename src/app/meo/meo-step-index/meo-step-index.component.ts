@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormioPromiseService, Formio } from '@formio/angular';
-import { FormManagerService, FormManagerConfig } from '@formio/angular/manager';
+import { FormManagerService } from '@formio/angular/manager';
 import { DataService } from '../../data.service';
 import { FormioAppConfig } from '@formio/angular';
 import { FormioGridComponent } from '@formio/angular/grid';
@@ -32,7 +32,7 @@ export class MeoStepIndexComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.subscription = this.dataService.getMessage.subscribe((msg: any) => {
+    this.subscription = this.dataService.message$.subscribe((msg: any) => {
       this.msg = msg;
       this.service.ready.then(() => {
         // Ezt ki kelle venni !!!!
