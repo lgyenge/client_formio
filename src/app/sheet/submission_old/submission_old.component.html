@@ -1,9 +1,0 @@
-<!-- <formio-grid src='http://localhost:3001/form/6667f2485c21eb33b437b508/submission' ></formio-grid> -->
-<formio-grid
-  src="{{ src }}"
-  [query]=" gridQuery "
-  [isActionAllowed]="gylIsAllowedAction"
-  (rowAction)="onAction($event)"
-  (rowSelect)="onSelect($event)"
-  (createItem)="onCreateItem()"
-></formio-grid>

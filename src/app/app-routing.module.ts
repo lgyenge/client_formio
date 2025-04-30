@@ -24,38 +24,7 @@ const routes: Routes = [
     loadChildren: () => import('./form/form.module').then((m) => m.FormModule),
     canActivate: [authAdminGuard],
   },
- /*  {
-    path: 'event',
-    // This is a route configuration that will load the EventModule
-    // when the route URL is '/event'. The loadChildren property
-    // is a function that will be called when the route is first
-    // accessed. The function imports the EventModule and returns
-    // it, so that it can be used to render the component for the
-    // route.
-    loadChildren: () =>
-      import('./event/event.module').then((m) => m.EventModule),
-    canActivate: [authGuard],
-  }, */
- /*  {
-    path: 'implant',
-    loadChildren: () =>
-      import('./implant/implant.module').then((m) => m.implantModule),
-    canActivate: [authGuard],
-  }, */
-  /* {
-    path: 'device',
-    loadChildren: () =>
-      import('./device/device.module').then((m) => m.DeviceModule),
-    canActivate: [authGuard],
-  }, */
-
- /*  { path: 'gyl', component: FormComponent }, */
- /*  {
-    path: 'sheet',
-    loadChildren: () =>
-      import('./sheet/sheet.module').then((m) => m.SheetModule),
-    canActivate: [authGuard],
-  }, */
+ 
   {
     path: 'meo',
     loadChildren: () => import('./meo/meo.module').then((m) => m.MeoModule),
