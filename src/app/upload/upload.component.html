@@ -1,17 +1,23 @@
-<div  class="mt-2 col-md-12">
-  <input #csvInput
-    type="file"
-    class="file-input btn btn-primary"
-    class="form-control"
-    (change)="readCsvFromLocal($event)"
-    accept=".csv"
-  />
+<input type="file" class="file-input"
+       (change)="onFileSelected($event)" [accept]="'text/csv'" #fileUpload>
+<div class="file-upload">
+  {{fileName || 'No file chosen'}}
+   <button class="btn btn-primary" 
+     (click)="fileUpload.click()">
+       <mat-icon>attach_file</mat-icon>
+   </button>
 </div>
 <div class="mt-2 col-md-12">
   <button class="btn btn-primary" *ngIf="dataList" (click)="uploadForm()">
     Upload Form
   </button>
 </div>
+<!--  only for testing 
+<div class="mt-2 col-md-12">
+  <button class="btn btn-primary"  (click)="localError()">
+    Local Error
+  </button>
+</div> -->
 
 <div class="mt-2 col-md-12" *ngFor="let item of dataList">{{ item | json }}</div>
 

@@ -13,6 +13,7 @@ import { Subscription, map } from 'rxjs';
 })
 export class Meo2Component implements OnInit, OnDestroy {
   url = this.appConfig.appUrl;
+  lotUrl = this.appConfig.appUrl;
 
   userDisplayResults: DinetFormioForm[] = [];
   searchForm!: FormGroup;
@@ -20,6 +21,7 @@ export class Meo2Component implements OnInit, OnDestroy {
   searchFormSubscription: Subscription = new Subscription();
   loadLotSubscription: Subscription = new Subscription();
   formService = new FormioService(this.url);
+  lotFormService = new FormioService(this.url);
   query = {
     params: {
       name__eq: 'lot',
@@ -50,7 +52,6 @@ export class Meo2Component implements OnInit, OnDestroy {
     //console.log(form)
     let query = {
       params: {
-        //todo: regex pontosítás
         name__regex: '/' + name + '/i',
         tags__eq: ['common'],
         type: 'form',
@@ -59,6 +60,10 @@ export class Meo2Component implements OnInit, OnDestroy {
     /** ehhez a lekérdezéshes csak a base url kell
      * ezért a lot-ra beállított formioService-t használom
      */
+    //this.formService = new FormioService(this.url);
+    //console.log('FormioAppConfig:', this.appConfig);
+    console.log('url:', this.url);
+    console.log('formService:', this.formService);
     this.loadFormsSubscription = this.formService
       .loadForms(query)
       .subscribe({
@@ -107,15 +112,15 @@ export class Meo2Component implements OnInit, OnDestroy {
   ngOnInit() {
     console.log('formService:', this.formService);
 
-    this.loadLotSubscription = this.formService
+    this.loadLotSubscription = this.lotFormService
       .loadForms(this.query)
       .subscribe({ next: (results) => {
         console.log('lots:', results);
         if ((results as DinetFormioForm[]).length > 0) {
           const lotId = (results as DinetFormioForm[])[0]._id ?? '';
           //localStorage.setItem('lotId', JSON.stringify(lotId));
-          this.url = this.appConfig.appUrl + '/form/' + lotId + '/submission';
-          this.formService = new FormioService(this.url);
+          this.lotUrl = this.appConfig.appUrl + '/form/' + lotId + '/submission';
+          this.lotFormService = new FormioService(this.lotUrl);
         }
       },
         error: (e) => {
@@ -134,7 +139,7 @@ export class Meo2Component implements OnInit, OnDestroy {
           return value.trim();
         }),
         switchMap((value: any) =>
-          this.formService.loadSubmissions({
+          this.lotFormService.loadSubmissions({
             params: {
               'data.lot__regex': '/' + value + '/i',
               'data.inProduction': 'true',

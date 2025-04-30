@@ -71,7 +71,7 @@ export class MeoStepIndex2Component implements OnInit, OnDestroy {
         tap((msg) => {
           console.log(' message received:', msg);
         }),
-        //skip(1),
+        skip(1),
         switchMap((msg: Suffix | string | null) => {
           if (!msg || typeof msg === 'string') {
             // Handle the case where msg is null or a string
@@ -119,11 +119,12 @@ export class MeoStepIndex2Component implements OnInit, OnDestroy {
           this.createTableRows(this.form, this.submissions);
           this.createTableHeader(this.form);
         },
-        error: (err) => {
+         error: (err) => {
           console.log('Error loading forms:', err);
           alert('Error loading forms: ' + err);
+          window.location.reload()
           return;
-        },
+        }, 
         complete: () => console.info('complete'),
       });
   }

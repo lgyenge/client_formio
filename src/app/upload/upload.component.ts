@@ -21,6 +21,9 @@ import { forEach } from 'lodash';
   styleUrl: './upload.component.scss',
 })
 export class UploadComponent implements OnInit , OnDestroy {
+  srcResult: any
+  fileName = '';
+
   subForms: Array<any> | undefined;
   chunk: any;
   file: string = '';
@@ -126,6 +129,13 @@ export class UploadComponent implements OnInit , OnDestroy {
     });
   }
 
+  /** only for testing */
+  /* localError() {
+    throw Error('The app component has thrown an error!');
+  } */
+
+    
+
   uploadForm() {
     if (this.CsvInputVar) this.CsvInputVar.nativeElement.value = "";
     const mainForms: Array<{ Cikkszám: string }> = this.dataList!.filter((element: { Cikkszám: string }) =>
@@ -203,6 +213,10 @@ export class UploadComponent implements OnInit , OnDestroy {
                  }, reason: ${err.error.message}`
                );
              }
+             // clear csv data
+             this.dataList = [];
+             this.fileName = '';
+         
              return of((this.dataList![0] as any)?.Cikkszám + ' - upload error');
            })
          )
@@ -213,12 +227,45 @@ export class UploadComponent implements OnInit , OnDestroy {
 
     // clear csv data
     this.dataList = [];
+    this.fileName = '';
   }
 
-  readCsvFromLocal($event: any) {
+  /* readCsvFromLocal($event: any) {
     const fileList = $event.srcElement.files;
     this.parseCsvFile(fileList[0]);
-  }
+  } */
+  /* onFileSelected() {
+    const inputNode: any = document.querySelector('#file');
+  
+    if (typeof (FileReader) !== 'undefined') {
+      const reader = new FileReader();
+  
+      reader.onload = (e: any) => {
+        this.srcResult = e.target.result;
+      };
+  
+      reader.readAsArrayBuffer(inputNode.files[0]);
+      this.parseCsvFile(inputNode.files[0]);
+    }
+    console.log('onFileSelected', this.srcResult);
+    console.log(inputNode.files[0]);
+
+  } */
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file: File | null = input.files ? input.files[0] : null;
+    this.error_message = [];
+
+    console.log('file', file);
+
+    if (file) {
+        this.fileName = file.name;
+        this.parseCsvFile(file);
+        input.value = '';
+
+    }
+}
 
   /**
    * Parses a CSV file using PapaParse and processes the data.

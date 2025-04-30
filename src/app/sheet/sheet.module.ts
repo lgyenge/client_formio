@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormioModule, FormioService } from '@formio/angular';
+import { FormioModule } from '@formio/angular';
 import { FormioGrid } from '@formio/angular/grid';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 

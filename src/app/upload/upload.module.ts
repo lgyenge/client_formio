@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 
 import { UploadRoutingModule } from './upload-routing.module';
 import { UploadComponent } from './upload.component';
-import { BsModalService, BsModalRef,  ModalDirective } from 'ngx-bootstrap/modal';
+import { MatIconModule } from '@angular/material/icon';
 
 
 @NgModule({
@@ -13,6 +13,7 @@ import { BsModalService, BsModalRef,  ModalDirective } from 'ngx-bootstrap/modal
   imports: [
     CommonModule,
     UploadRoutingModule,
+    MatIconModule,
   ]
 })
 export class UploadModule { }

@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { FormioGrid  } from '@formio/angular/grid';
-import { FormioModule, FormioService } from '@formio/angular';
+import { FormioModule } from '@formio/angular';
 import { MeoRoutingModule } from './meo-routing.module';
 import { MeoComponent } from './meo/meo.component';
 import { MeoStepComponent } from './meo-step/meo-step.component';

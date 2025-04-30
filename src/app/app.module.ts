@@ -2,7 +2,6 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
-import { RouterModule, Routes } from '@angular/router';
 import { FormioModule, FormioAppConfig } from '@formio/angular';
 import { FormManagerService, FormManagerConfig } from '@formio/angular/manager';
 import { FormioAuthService, FormioAuthConfig } from '@formio/angular/auth';
@@ -20,6 +19,9 @@ import { FormComponent } from './form/form.component';
 // különben nem ismeri fel a formio-grid komponenst
 import { FormioGrid } from '@formio/angular/grid';
 import { ExcelExampleComponent } from './excel-example/excel-example.component';
+import { CoreModule } from './core/core.module';
+import { SharedModule } from './shared/shared.module';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 
 @NgModule({
@@ -37,6 +39,8 @@ import { ExcelExampleComponent } from './excel-example/excel-example.component';
     FormioGrid,
     AppRoutingModule,
     HttpClientModule,
+    CoreModule,
+    SharedModule,
   ],
   providers: [
     FormioResources,
@@ -52,6 +56,7 @@ import { ExcelExampleComponent } from './excel-example/excel-example.component';
     },
     { provide: FormioAuthConfig, useValue: AuthConfig },
     { provide: FormioAppConfig, useValue: AppConfig },
+    provideAnimationsAsync(),
   ],
   bootstrap: [AppComponent],
 })

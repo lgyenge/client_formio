@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { FormioAppConfig, FormioForm, FormioService } from '@formio/angular';
+import { FormioAppConfig } from '@formio/angular';
 import { DinetFormioForm } from './dinet_common';
 
 @Injectable({
