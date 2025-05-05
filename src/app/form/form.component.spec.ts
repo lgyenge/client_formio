@@ -1,6 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { FormComponent } from './form.component';
+import { FormioModule } from '@formio/angular';
+import { AppModule } from '../app.module'; // Adjusted the path to the correct location
+
 
 describe('FormComponent', () => {
   let component: FormComponent;
@@ -8,7 +11,12 @@ describe('FormComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [FormComponent]
+      declarations: [FormComponent],
+      imports: [
+        AppModule,
+        FormioModule,
+      ],
+
     })
     .compileComponents();
     

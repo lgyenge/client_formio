@@ -1,6 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { UploadComponent } from './upload.component';
+import { AppModule } from '../app.module'; // Adjust the path as necessary
+import { MatIconModule } from '@angular/material/icon';
+
+
 
 describe('UploadComponent', () => {
   let component: UploadComponent;
@@ -8,7 +12,12 @@ describe('UploadComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [UploadComponent]
+      declarations: [UploadComponent],
+            imports: [
+              AppModule,
+              MatIconModule
+            ],
+      
     })
     .compileComponents();
     

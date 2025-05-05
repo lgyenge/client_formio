@@ -1,6 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { MeoViewComponent } from './meo-view.component';
+import { FormioModule } from '@formio/angular';
+import { AppModule } from '../../app.module'; // Adjust the path as necessary
+
 
 describe('MeoViewComponent', () => {
   let component: MeoViewComponent;
@@ -8,7 +11,11 @@ describe('MeoViewComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [MeoViewComponent]
+      declarations: [MeoViewComponent],
+      imports: [
+        AppModule,
+        FormioModule,
+      ],
     })
     .compileComponents();
     

@@ -2,14 +2,18 @@ import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { FormioAuthService } from '@formio/angular/auth';
 
-
 export const authGuard: CanActivateFn = (route, state) => {
-  const auth = inject(FormioAuthService);
-  const router = inject(Router);
+  const auth: FormioAuthService = inject(FormioAuthService);
+  const router: Router = inject(Router);
 
-  if (auth.authenticated) {
-    return true;
-  }
-  router.navigate(['/auth/login']);
-  return false;
+  return auth.ready.then(() => {
+    console.log('authGuard ready', auth.authenticated);
+    if (auth.authenticated) {
+      return true;
+    } else {
+      // Redirect to the login page
+
+      return router.parseUrl('/auth/login');
+    }
+  });
 };

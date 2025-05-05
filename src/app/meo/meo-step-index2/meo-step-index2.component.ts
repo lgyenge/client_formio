@@ -71,7 +71,10 @@ export class MeoStepIndex2Component implements OnInit, OnDestroy {
         tap((msg) => {
           console.log(' message received:', msg);
         }),
-        skip(1),
+        /** ha skip(1) van, akkor az edit + visszanyil után rossz
+         * ha nincs, akkor a form felöltés után az először küldott message
+         * még a régi formid-t tartalmazza  */
+        //skip(1),
         switchMap((msg: Suffix | string | null) => {
           if (!msg || typeof msg === 'string') {
             // Handle the case where msg is null or a string

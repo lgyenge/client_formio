@@ -11,7 +11,6 @@ import { HeroComponent } from './hero/hero.component';
 import { HomeComponent } from './home/home.component';
 import { HeaderComponent } from './header/header.component';
 import { HttpClientModule } from '@angular/common/http';
-//import { AuthService } from './gylAuth.service';
 
 import { AppComponent } from './app.component';
 import { FormComponent } from './form/form.component';
@@ -46,7 +45,6 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
     FormioResources,
     FormioAuthService,
     FormManagerService,
-    //AuthService,
     {
       provide: FormManagerConfig,
       useValue: {

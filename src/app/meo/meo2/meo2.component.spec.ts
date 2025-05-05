@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { AppModule } from '../../app.module'; // Adjust the path as necessary
+
 
 import { Meo2Component } from './meo2.component';
 
@@ -8,7 +10,9 @@ describe('Meo2Component', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [Meo2Component]
+      declarations: [Meo2Component],
+      imports: [AppModule],
+
     })
     .compileComponents();
     

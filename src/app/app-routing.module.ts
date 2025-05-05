@@ -28,7 +28,7 @@ const routes: Routes = [
   {
     path: 'meo',
     loadChildren: () => import('./meo/meo.module').then((m) => m.MeoModule),
-    canActivate: [authGuard],
+    //canActivate: [authGuard],
   },
   {
     path: 'upload',
