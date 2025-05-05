@@ -1,0 +1,1 @@
+import{P as o,m as e}from"./chunk-LK7GDLPJ.js";import{pa as r}from"./chunk-CHBFHPN6.js";var m=(a,n)=>{let t=r(o),u=r(e);return t.ready.then(()=>(console.log("authGuard ready",t.authenticated),t.authenticated?!0:u.parseUrl("/auth/login")))};export{m as a};
