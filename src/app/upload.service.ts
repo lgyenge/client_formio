@@ -27,12 +27,16 @@ export class UploadService {
   uploadForm(form: DinetFormioForm) {
     let configUrl = this.appConfig.appUrl + '/form';
     let formioToken = localStorage.getItem('formioToken') || '';
-   
+
     let headers = new HttpHeaders({
       'Content-Type': 'application/json',
       'x-jwt-token': formioToken,
     });
     //the HTTP post request
     return this.http.post(configUrl, form, { headers });
+  }
+  /**only for test http error */
+  failingRequest() {
+    this.http.get('https://httpstat.us/404?sleep=2000').toPromise();
   }
 }

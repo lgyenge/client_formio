@@ -84,7 +84,7 @@ export class UploadComponent implements OnInit , OnDestroy {
   constructor(
     public appConfig: FormioAppConfig,
     private papa: Papa,
-    private upload: UploadService,
+    public upload: UploadService,
     public auth: FormioAuthService,
   ) { }
   ngOnDestroy(): void {
@@ -130,10 +130,11 @@ export class UploadComponent implements OnInit , OnDestroy {
   }
 
   /** only for testing */
-  /* localError() {
-    throw Error('The app component has thrown an error!');
-  } */
+   localError() {
+    throw Error('The upload component has thrown an error!');
+  } 
 
+    
     
 
   uploadForm() {
