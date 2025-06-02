@@ -5,6 +5,7 @@ import { forkJoin, mergeMap, skip, Subscription, switchMap, tap } from 'rxjs';
 import { DataService } from '../../data.service';
 import { DinetFormioForm, Limit, TableData, Suffix } from '../../dinet_common';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { initial } from 'lodash';
 //import { map } from 'lodash';
 @Component({
   selector: 'app-meo-step-index2',
@@ -17,6 +18,7 @@ export class MeoStepIndex2Component implements OnInit, OnDestroy {
 
   lot_no = localStorage.getItem('lot_no');
   prod_no = localStorage.getItem('prod_no');
+  initial_quantity = localStorage.getItem('initial_quantity');
 
   query = { 'data.lot1__eq': this.lot_no };
   forms = JSON.parse(
@@ -81,6 +83,12 @@ export class MeoStepIndex2Component implements OnInit, OnDestroy {
             console.error('Invalid or null message type received:', msg);
             return [];
           }
+          // Check if form exist, drope if not
+          if (!this.forms.find((form) => form._id === msg.formId)){
+            console.error('Form not found for msg:', msg.formId);            
+            return [];
+          }
+          
           console.log('Received message:', msg);
           this.suffix = msg;
           this.url =

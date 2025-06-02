@@ -35,8 +35,15 @@ export class GlobalErrorHandler implements ErrorHandler {
         // All code here runs inside Angular's zone, so change detection works correctly
         console.error('Token error: ', error);
         // Clear the invalid token, log the user out.
+        localStorage.setItem('formioToken','');
         this.authService.logout();
-        this.router.navigate(['/auth/login']);
+        //this.router.navigate(['/home']);
+
+        //gyl add reloadPage
+        window.location.reload()
+
+        //this.router.navigate(['/auth/login']);
+
         return
       });
     }

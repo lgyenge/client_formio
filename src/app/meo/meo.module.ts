@@ -12,6 +12,7 @@ import { MeoViewComponent } from './meo-view/meo-view.component';
 import { MeoExcelComponent } from './meo-excel/meo-excel.component';
 import { Meo2Component } from './meo2/meo2.component';
 import { MeoStepIndex2Component } from './meo-step-index2/meo-step-index2.component';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 
 @NgModule({
@@ -31,7 +32,8 @@ import { MeoStepIndex2Component } from './meo-step-index2/meo-step-index2.compon
     ReactiveFormsModule,
     FormsModule,
     FormioGrid,
-    FormioModule
+    FormioModule,
+    MatFormFieldModule
   ]
 })
 export class MeoModule { }

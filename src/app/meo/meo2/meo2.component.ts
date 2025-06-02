@@ -44,6 +44,7 @@ export class Meo2Component implements OnInit, OnDestroy {
       this.userDisplayResults[i].data.productNo ?? ''
     );
     localStorage.setItem('lot_no', this.userDisplayResults[i].data.lot ?? '');
+    localStorage.setItem('initial_quantity', this.userDisplayResults[i].data.initialQuantity ?? '');
 
     this.FindStep(1, form);
   }

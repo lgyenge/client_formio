@@ -1,49 +1,74 @@
 <div class="row">
-    <div class="col">
-        <p>{{prod_no}}</p>
-        <p>{{lot_no}}</p>
-        <p *ngIf="formioUser?.data.email">{{formioUser.data.email}}</p>
+  <div class="col" class="w-75 p-3">
+    <p>{{ prod_no }}</p>
+    <p>{{ lot_no }}</p>
+    <p>Initial Quantity:{{ initial_quantity }}</p>
+    <p *ngIf="formioUser?.data.email">{{ formioUser.data.email }}</p>
+  </div>
+  <div class="w-25 p-3">
+    <div *ngIf="suffix.name !== 'H'" class="col">
+      <form [formGroup]="inOutForm" (ngSubmit)="onSubmit()">
+        <div>
+          <!--  <mat-form-field style="width:50vw" >
+                    <input matInput formControlName="inCnt" placeholder="In" />
+                 </mat-form-field> -->
+          <input
+            class="form-control"
+            formControlName="inCnt"
+            placeholder="In"
+          />
+          <input
+            class="form-control"
+            formControlName="outCnt"
+            placeholder="Out"
+          />
+          <button class="btn btn-primary btn-sm" type="submit">Submit</button>
+        </div>
+      </form>
     </div>
-    <div *ngIf="(suffix.name  !== 'H')" class="col">
-        <form [formGroup]="inOutForm" (ngSubmit)="onSubmit()">
-            <div class="mb-3">
-                <input class="form-control" formControlName="inCnt" placeholder="In" />
-                <input class="form-control" formControlName="outCnt" placeholder="Out" />
-                <button class="btn btn-primary" type="submit">Submit</button>
-           </div>
-        </form>
-    </div>
+  </div>
 </div>
 <!-- {{formattedMessage}} -->
 <div class="row mt-3">
-    <div class="col">
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead class="thead-light">
-                    <tr>
-                        <th *ngFor="let hdata of tableHeader"> {{hdata}}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let row of tableRows; let i = index" (click)="ClickedRow(i)">
-                        <ng-container *ngFor="let data of row; let j = index ">
-                            <td *ngIf="(data.componentType == 'number')">
-                                <div
-                                    [ngClass]="{'yellow-bg': (data.data < data.limit.lowerYellowLimit  &&  data.data > data.limit.lowerRedLimit) || (data.data  > data.limit.upperYellowLimit && data.data < data.limit.upperRedLimit), 'red-bg': (data.data < data.limit.lowerRedLimit || data.data > data.limit.upperRedLimit)}">
-                                    {{ valueIsNaN(data.data) ? '-' : data.data }}
-                                </div>
-                            </td>
-                            <td *ngIf="(data.componentType == 'checkbox')">
-                                <div
-                                    [ngClass]="{'red-bg': (data.data !=1 )}">
-                                    {{ (data.data == 1) ? 'OK' : 'NOK' }}
-                                </div>
-                            </td>
-
-                        </ng-container>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+  <div class="col">
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead class="thead-light">
+          <tr>
+            <th *ngFor="let hdata of tableHeader">{{ hdata }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let row of tableRows; let i = index"
+            (click)="ClickedRow(i)"
+          >
+            <ng-container *ngFor="let data of row; let j = index">
+              <td *ngIf="data.componentType == 'number'">
+                <div
+                  [ngClass]="{
+                    'yellow-bg':
+                      (data.data < data.limit.lowerYellowLimit &&
+                        data.data > data.limit.lowerRedLimit) ||
+                      (data.data > data.limit.upperYellowLimit &&
+                        data.data < data.limit.upperRedLimit),
+                    'red-bg':
+                      data.data < data.limit.lowerRedLimit ||
+                      data.data > data.limit.upperRedLimit
+                  }"
+                >
+                  {{ valueIsNaN(data.data) ? "-" : data.data }}
+                </div>
+              </td>
+              <td *ngIf="data.componentType == 'checkbox'">
+                <div [ngClass]="{ 'red-bg': data.data != 1 }">
+                  {{ data.data == 1 ? "OK" : "NOK" }}
+                </div>
+              </td>
+            </ng-container>
+          </tr>
+        </tbody>
+      </table>
     </div>
+  </div>
 </div>
