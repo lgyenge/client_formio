@@ -49,9 +49,9 @@
                   [ngClass]="{
                     'yellow-bg':
                       (data.data < data.limit.lowerYellowLimit &&
-                        data.data > data.limit.lowerRedLimit) ||
+                        data.data >= data.limit.lowerRedLimit) ||
                       (data.data > data.limit.upperYellowLimit &&
-                        data.data < data.limit.upperRedLimit),
+                        data.data <= data.limit.upperRedLimit),
                     'red-bg':
                       data.data < data.limit.lowerRedLimit ||
                       data.data > data.limit.upperRedLimit

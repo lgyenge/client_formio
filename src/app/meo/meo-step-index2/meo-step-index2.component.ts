@@ -84,11 +84,11 @@ export class MeoStepIndex2Component implements OnInit, OnDestroy {
             return [];
           }
           // Check if form exist, drope if not
-          if (!this.forms.find((form) => form._id === msg.formId)){
-            console.error('Form not found for msg:', msg.formId);            
+          if (!this.forms.find((form) => form._id === msg.formId)) {
+            console.error('Form not found for msg:', msg.formId);
             return [];
           }
-          
+
           console.log('Received message:', msg);
           this.suffix = msg;
           this.url =
@@ -130,12 +130,12 @@ export class MeoStepIndex2Component implements OnInit, OnDestroy {
           this.createTableRows(this.form, this.submissions);
           this.createTableHeader(this.form);
         },
-         error: (err) => {
+        error: (err) => {
           console.log('Error loading forms:', err);
           alert('Error loading forms: ' + err);
-          window.location.reload()
+          window.location.reload();
           return;
-        }, 
+        },
         complete: () => console.info('complete'),
       });
   }
@@ -191,12 +191,18 @@ export class MeoStepIndex2Component implements OnInit, OnDestroy {
         }
         if (component['properties']) {
           parLimit.nominalValue = component['properties']?.nominalValue;
+          /** finalize upload data format from csv*/
+          /* parLimit.lowerRedLimit =
+            +parLimit.nominalValue + +component['properties']?.toleranceMin; */
           parLimit.lowerRedLimit =
-            +parLimit.nominalValue + +component['properties']?.toleranceMin;
+            +parLimit.nominalValue - +component['properties']?.toleranceMin;
           parLimit.upperRedLimit =
             parLimit.nominalValue + +component['properties']?.toleranceMax;
-          parLimit.lowerYellowLimit =
+          /* parLimit.lowerYellowLimit =
             +parLimit.nominalValue +
+            0.7 * +component['properties']?.toleranceMin; */
+          parLimit.lowerYellowLimit =
+            +parLimit.nominalValue -
             0.7 * +component['properties']?.toleranceMin;
           parLimit.upperYellowLimit =
             parLimit.nominalValue +
@@ -205,7 +211,7 @@ export class MeoStepIndex2Component implements OnInit, OnDestroy {
         }
       }
     });
-    //console.log('parLimits:', parLimits);
+    console.log('parLimits:', parLimits);
     return parLimits;
   }
 
