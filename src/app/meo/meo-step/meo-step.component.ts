@@ -52,6 +52,17 @@ export class MeoStepComponent implements OnInit, OnDestroy {
     console.log('MeoStepComponent is being destroyed');
   }
 
+  /**
+   * Given a list of forms and a formId, this function initializes the suffixes
+   * by looping through the forms and extracting the suffixes from the form names.
+   * If the form name includes the XX_MARKER, the suffix is the substring after
+   * the marker. Otherwise, the suffix is 'NH'. The suffixes are stored in the
+   * component's `suffixes` array and in local storage under the key SUFFIXES_KEY.
+   * The function returns the suffix object for the given formId.
+   * @param forms the list of forms
+   * @param formId the id of the form
+   * @returns the suffix object for the given formId
+   */
   private initializeSuffixes(
     forms: DinetFormioForm[],
     formId: string
@@ -85,6 +96,13 @@ export class MeoStepComponent implements OnInit, OnDestroy {
     return currentSuffix;
   }
 
+  /**
+   * Initialize the header form service.
+   * The header form is the one with the form name that includes the XXH_MARKER.
+   * If the header form is found, a new FormioService is created with the submission
+   * url for the header form.
+   * @param forms the list of forms
+   */
   private initializeHeaderFormService(forms: DinetFormioForm[]) {
     const foundHeaderForm = forms.find((form) => form.name?.includes(XXH_MARKER));
     if (foundHeaderForm) {
@@ -94,6 +112,18 @@ export class MeoStepComponent implements OnInit, OnDestroy {
     console.log('this.headerFormservice', this.headerFormservice);
   }
 
+  /**
+   * Called when the component is initialized.
+   * Subscribes to the route parameter and:
+   * 1. initializes the suffixes
+   * 2. initializes the header form service
+   * 3. loads the submissions for the header form
+   * 4. sets the In Out quantities for the Header form
+   * 5. sends the suffix to the meo-step-index2 component
+   * 6. stores the form id in local storage
+   * 7. resets the service with the current route
+   * @returns void
+   */
   ngOnInit() {
     this.subscription = this.route.params
       .pipe(
