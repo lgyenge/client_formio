@@ -52,7 +52,7 @@ export class Meo2Component implements OnInit, OnDestroy {
   }
 
   /** Megkeresi a következő lépést a termék nevéből */
-  private FindStep(form: DinetFormioForm) {
+  FindStep(form: DinetFormioForm) {
     const name = localStorage.getItem('prod_no');
     if (!name) return;
 
