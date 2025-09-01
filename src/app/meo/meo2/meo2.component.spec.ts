@@ -32,96 +32,192 @@ describe('Meo2Component', () => {
 /** gpt5 generated test code, fixed */
 /** meo2.component.spec.ts - modern Angular 16+ */
 
-import { Component } from '@angular/core';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { Meo2Component } from './meo2.component';
-import { Router, ActivatedRoute, provideRouter } from '@angular/router';
-import { FormioService, FormioAppConfig } from '@formio/angular';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { Router, ActivatedRoute } from '@angular/router';
 import { of, throwError } from 'rxjs';
-import { ReactiveFormsModule } from '@angular/forms';
-
-
-/** Router outlet stub, hogy a template ne dobjon NG0304 hibát */
-@Component({ selector: 'router-outlet', template: '' })
-class RouterOutletStub {}
-
-/** Mock FormioService */
-class MockFormioService {
-  loadForms(query: any) {
-    return of([
-      { _id: '123', name: 'TestFormA' },
-      { _id: '456', name: 'TestFormB' }
-    ]);
-  }
-}
-
-/** Mock FormioService hiba teszthez */
-class MockFormioServiceError {
-  loadForms(query: any) {
-    return throwError(() => new Error('mock error'));
-  }
-}
+import { FormioAppConfig, FormioService } from '@formio/angular';
+import { RouterTestingModule } from '@angular/router/testing';
 
 describe('Meo2Component', () => {
   let component: Meo2Component;
   let fixture: ComponentFixture<Meo2Component>;
-  let router: Router;
-  let activatedRoute: ActivatedRoute;
+
+  // Spies
+  let routerSpy: jasmine.SpyObj<Router>;
+  let formioServiceSpy: jasmine.SpyObj<FormioService>;
+  let activatedRouteStub: Partial<ActivatedRoute>;
 
   beforeEach(async () => {
+    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    formioServiceSpy = jasmine.createSpyObj('FormioService', [
+      'loadForms',
+      'loadSubmissions'
+    ]);
+
+    activatedRouteStub = {
+      snapshot: {} as any,
+      params: of({})
+    };
+
     await TestBed.configureTestingModule({
-      declarations: [Meo2Component, RouterOutletStub],
-      imports: [ReactiveFormsModule],
+      declarations: [Meo2Component],
+      imports: [ReactiveFormsModule,  RouterTestingModule ],
       providers: [
-        provideRouter([]), // modern router
-        { provide: ActivatedRoute, useValue: { snapshot: {}, root: {} } },
-        { provide: FormioAppConfig, useValue: { appUrl: 'http://mock-api' } },
-        { provide: FormioService, useClass: MockFormioService }
+        FormBuilder,
+        { provide: Router, useValue: routerSpy },
+        { provide: ActivatedRoute, useValue: activatedRouteStub },
+        { provide: FormioAppConfig, useValue: { appUrl: 'http://test.url' } },
+        { provide: FormioService, useValue: formioServiceSpy }
       ]
     }).compileComponents();
-  });
 
-  beforeEach(() => {
     fixture = TestBed.createComponent(Meo2Component);
     component = fixture.componentInstance;
-    router = TestBed.inject(Router);
-    activatedRoute = TestBed.inject(ActivatedRoute);
+
+    // Default spies with proper casting
+    formioServiceSpy.loadForms.and.returnValue(of([] as any));
+    formioServiceSpy.loadSubmissions.and.returnValue(of([] as any));
+
     fixture.detectChanges();
   });
 
-  it('should navigate to first form when forms are returned', (done) => {
-    // Spy a router.navigate-re
-    spyOn(router, 'navigate').and.callFake(() => Promise.resolve(true));
-    
-    component.FindStep({ _id: 'dummy' } as any);
+  afterEach(() => {
+    localStorage.clear();
+  });
 
-    setTimeout(() => {
-      expect(router.navigate).toHaveBeenCalledWith(
-        ['step', '123'], // a MockFormioService első form _id-ja
-        { relativeTo: activatedRoute }
+  // -------------------------
+  // ClickedRow
+  // -------------------------
+  describe('ClickedRow', () => {
+    it('should not set localStorage if row data is missing', () => {
+      component.userDisplayResults = [{} as any];
+      component.ClickedRow(0, {} as any);
+
+      expect(localStorage.getItem('prod_no')).toBeNull();
+      expect(localStorage.getItem('lot_no')).toBeNull();
+    });
+
+    it('should set localStorage and call FindStep if data exists', () => {
+      spyOn(component, 'FindStep');
+      component.userDisplayResults = [
+        { data: { productNo: 'P1', lot: 'L1', initialQuantity: '10' } } as any
+      ];
+
+      component.ClickedRow(0, { name: 'form1' } as any);
+
+      expect(localStorage.getItem('prod_no')).toBe('P1');
+      expect(localStorage.getItem('lot_no')).toBe('L1');
+      expect(localStorage.getItem('initial_quantity')).toBe('10');
+      expect(component.FindStep).toHaveBeenCalled();
+    });
+  });
+
+  // -------------------------
+  // FindStep
+  // -------------------------
+  describe('FindStep', () => {
+    beforeEach(() => {
+      localStorage.setItem('prod_no', 'P1');
+    });
+
+    it('should navigate to first result when forms returned', () => {
+      const forms = [{ _id: '123', name: 'A' }] as any;
+      formioServiceSpy.loadForms.and.returnValue(of(forms));
+
+      component.FindStep({} as any);
+
+      expect(routerSpy.navigate).toHaveBeenCalledWith(['step', '123'], {
+        relativeTo: TestBed.inject(ActivatedRoute)
+      });
+      expect(localStorage.getItem('forms')).toContain('123');
+    });
+
+    it('should alert when no forms returned', () => {
+      spyOn(window, 'alert');
+      formioServiceSpy.loadForms.and.returnValue(of([] as any));
+
+      component.FindStep({} as any);
+
+      expect(window.alert).toHaveBeenCalledWith('No Product found!');
+    });
+
+    it('should alert on error', () => {
+      spyOn(window, 'alert');
+      formioServiceSpy.loadForms.and.returnValue(throwError(() => 'err'));
+
+      component.FindStep({} as any);
+
+      expect(window.alert).toHaveBeenCalledWith('Error loading forms: err');
+    });
+
+    it('should do nothing if prod_no is missing', () => {
+      localStorage.removeItem('prod_no');
+      spyOn(formioServiceSpy, 'loadForms');
+
+      component.FindStep({} as any);
+
+      expect(formioServiceSpy.loadForms).not.toHaveBeenCalled();
+    });
+  });
+
+  // -------------------------
+  // ngOnInit
+  // -------------------------
+  describe('ngOnInit', () => {
+    it('should set lotUrl when lot form exists', () => {
+      formioServiceSpy.loadForms.and.returnValue(of([{ _id: 'lot1' }] as any));
+
+      component.ngOnInit();
+
+      expect(component.lotUrl).toBe(
+        'http://test.url/form/lot1/submission'
       );
-      done();
-    }, 0);
+    });
+
+    it('should keep lotUrl unchanged when no lot forms', () => {
+      formioServiceSpy.loadForms.and.returnValue(of([] as any));
+
+      const beforeUrl = component.lotUrl;
+      component.ngOnInit();
+
+      expect(component.lotUrl).toBe(beforeUrl);
+    });
+
+    it('should update userDisplayResults when lot search returns results', fakeAsync(() => {
+      const searchResults = [{ data: { lot: 'L2' } }] as any;
+      formioServiceSpy.loadSubmissions.and.returnValue(of(searchResults));
+
+      component.ngOnInit();
+      component.searchForm.get('lot')!.setValue('L2');
+      tick(500); // simulate debounce
+
+      expect(component.userDisplayResults).toEqual(searchResults);
+    }));
+
+    it('should remove forms from localStorage', () => {
+      localStorage.setItem('forms', 'something');
+      component.ngOnInit();
+
+      expect(localStorage.getItem('forms')).toBeNull();
+    });
   });
 
-  it('should alert when no forms are returned', () => {
-    const alertSpy = spyOn(window, 'alert');
-    // Mock FormioService, ami üres tömböt ad
-    component['formService'] = {
-      loadForms: () => of([])
-    } as any;
-
-    component.FindStep({ _id: 'dummy' } as any);
-    expect(alertSpy).toHaveBeenCalledWith('No Product found!');
-  });
-
-  it('should alert on error', () => {
-    const alertSpy = spyOn(window, 'alert');
-    // Mock FormioService, ami hibát ad
-    component['formService'] = new MockFormioServiceError() as any;
-
-    component.FindStep({ _id: 'dummy' } as any);
-    expect(alertSpy).toHaveBeenCalledWith('Error loading forms: Error: mock error');
+  // -------------------------
+  // ngOnDestroy
+  // -------------------------
+  describe('ngOnDestroy', () => {
+    it('should complete destroy$', () => {
+      const completeSpy = spyOn(component['destroy$'], 'complete').and.callThrough();
+      component.ngOnDestroy();
+      expect(completeSpy).toHaveBeenCalled();
+    });
   });
 });
+
+
+
+
 
