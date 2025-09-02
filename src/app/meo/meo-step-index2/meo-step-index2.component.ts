@@ -5,8 +5,10 @@ import { forkJoin, mergeMap, skip, Subscription, switchMap, tap } from 'rxjs';
 import { DataService } from '../../data.service';
 import { DinetFormioForm, Limit, TableData, Suffix } from '../../dinet_common';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { initial } from 'lodash';
+//import { initial } from 'lodash';
 //import { map } from 'lodash';
+import { FormioServiceFactoryService } from '../../formio-service-factory.service';
+
 @Component({
   selector: 'app-meo-step-index2',
   templateUrl: './meo-step-index2.component.html',
@@ -36,7 +38,9 @@ export class MeoStepIndex2Component implements OnInit, OnDestroy {
   inOutForm!: FormGroup;
   //formattedMessage: string = '';
   headerForm: DinetFormioForm | undefined = undefined;
-  headerFormservice: FormioService = new FormioService(this.appConfig.appUrl);
+  //headerFormservice: FormioService = new FormioService(this.appConfig.appUrl);
+  headerFormservice = this.formioFactory.create(this.appConfig.appUrl); // ✅ no `new`
+
   headerSubmission: any;
   suffix: Suffix = {};
 
@@ -47,7 +51,8 @@ export class MeoStepIndex2Component implements OnInit, OnDestroy {
     public router: Router,
     public dataService: DataService,
     public appConfig: FormioAppConfig,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private formioFactory: FormioServiceFactoryService
   ) {}
 
   ngOnInit(): void {
@@ -63,7 +68,9 @@ export class MeoStepIndex2Component implements OnInit, OnDestroy {
       console.log('foundHeaderForm:', foundHeaderForm);
       const headerUrl =
         this.appConfig.appUrl + '/form/' + foundHeaderForm._id + '/submission';
-      this.headerFormservice = new FormioService(headerUrl);
+      //this.headerFormservice = new FormioService(headerUrl);
+      this.headerFormservice = this.formioFactory.create(headerUrl); // ✅ no `new`
+
       console.log('this.headerFormservice', this.headerFormservice);
     } else {
       console.error('Header form not found!');
@@ -93,7 +100,9 @@ export class MeoStepIndex2Component implements OnInit, OnDestroy {
           this.suffix = msg;
           this.url =
             this.appConfig.appUrl + '/form/' + msg.formId + '/submission';
-          this.service = new FormioService(this.url);
+          //this.service = new FormioService(this.url);
+          this.service = this.formioFactory.create(this.url); // ✅ no `new`
+
           console.log('this.service', this.service);
 
           const foundForm = this.forms

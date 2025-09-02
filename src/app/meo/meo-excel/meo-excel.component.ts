@@ -7,6 +7,7 @@ import {
 } from '@formio/angular';
 import { ExcelService } from '../../excel.service';
 import { DinetFormioForm, SheetData } from '../../dinet_common';
+import { FormioServiceFactoryService } from '../../formio-service-factory.service';
 
 @Component({
   selector: 'app-meo-excel',
@@ -14,7 +15,7 @@ import { DinetFormioForm, SheetData } from '../../dinet_common';
   styleUrl: './meo-excel.component.scss',
 })
 export class MeoExcelComponent implements OnInit {
-  services: FormioService[] = [] // | undefined;
+  services: FormioService[] = []; // | undefined;
   forms: DinetFormioForm[] = JSON.parse(localStorage.getItem('forms') ?? '[]');
   keys: (string | undefined)[] = [];
   labels: (string | undefined)[] = [];
@@ -23,23 +24,26 @@ export class MeoExcelComponent implements OnInit {
   lot: string = localStorage.getItem('lot_no') || 'noLot';
   query = {
     params: {
-     'data.lot1__eq': this.lot,
-     'limit': 100,
-     'sort': 'data.serial',
-     'skip': 0
+      'data.lot1__eq': this.lot,
+      limit: 100,
+      sort: 'data.serial',
+      skip: 0,
     },
   };
 
   sheetData: SheetData[] = [];
   constructor(
     public appConfig: FormioAppConfig,
-    private excelService: ExcelService
+    private excelService: ExcelService,
+    private formioFactory: FormioServiceFactoryService
   ) {
     this.forms.forEach((form) => {
       //console.log(form);
-      let formio = new FormioService(
+     /*  let formio = new FormioService(
         this.appConfig.appUrl + '/form/' + form._id
-      );
+      ); */
+      let formio = this.formioFactory.create(this.appConfig.appUrl + '/form/' + form._id);
+
       this.services.push(formio);
     });
     //console.log(this.services);

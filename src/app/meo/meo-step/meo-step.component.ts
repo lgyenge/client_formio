@@ -7,6 +7,7 @@ import { FormioAuthService } from '@formio/angular/auth';
 import { DataService } from '../../data.service';
 import { DinetFormioForm, Suffix } from '../../dinet_common';
 import { Subscription, switchMap } from 'rxjs';
+import { FormioServiceFactoryService } from '../../formio-service-factory.service';
 
 const FORMS_KEY = 'forms';
 const SUFFIXES_KEY = 'suffixes';
@@ -28,9 +29,13 @@ export class MeoStepComponent implements OnInit, OnDestroy {
     console.log('send suffix', suffix);
     this.dataService.sendMessage(suffix ?? { formId: '', name: '' });
   }
-  headerFormservice: FormioService = new FormioService(this.appConfig.appUrl);
+  //headerFormservice: FormioService = new FormioService(this.appConfig.appUrl);
+  headerFormservice = this.formioFactory.create(this.appConfig.appUrl); // ✅ no `new`
 
-  forms: DinetFormioForm[] = JSON.parse(localStorage.getItem(FORMS_KEY) ?? '[]');
+
+  forms: DinetFormioForm[] = JSON.parse(
+    localStorage.getItem(FORMS_KEY) ?? '[]'
+  );
   suffixes: Suffix[] = [];
   suffix: Suffix | undefined = undefined;
   query = { 'data.lot1__eq': localStorage.getItem(LOT_NO_KEY) };
@@ -42,7 +47,8 @@ export class MeoStepComponent implements OnInit, OnDestroy {
     public route: ActivatedRoute,
     public appConfig: FormioAppConfig,
     public router: Router,
-    private dataService: DataService
+    private dataService: DataService,
+    private formioFactory: FormioServiceFactoryService
   ) {}
   ngOnDestroy(): void {
     // Perform any necessary cleanup here
@@ -104,10 +110,13 @@ export class MeoStepComponent implements OnInit, OnDestroy {
    * @param forms the list of forms
    */
   private initializeHeaderFormService(forms: DinetFormioForm[]) {
-    const foundHeaderForm = forms.find((form) => form.name?.includes(XXH_MARKER));
+    const foundHeaderForm = forms.find((form) =>
+      form.name?.includes(XXH_MARKER)
+    );
     if (foundHeaderForm) {
       const headerUrl = `${this.appConfig.appUrl}/form/${foundHeaderForm._id}/submission`;
-      this.headerFormservice = new FormioService(headerUrl);
+      //this.headerFormservice = new FormioService(headerUrl);
+      this.headerFormservice = this.formioFactory.create(headerUrl); // ✅ no `new`
     }
     console.log('this.headerFormservice', this.headerFormservice);
   }

@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
-import { FormioModule, FormioAppConfig } from '@formio/angular';
+import { FormioModule, FormioAppConfig, FormioService } from '@formio/angular';
 import { FormManagerService, FormManagerConfig } from '@formio/angular/manager';
 import { FormioAuthService, FormioAuthConfig } from '@formio/angular/auth';
 import { FormioResources } from '@formio/angular/resource';
@@ -21,7 +21,6 @@ import { ExcelExampleComponent } from './excel-example/excel-example.component';
 import { CoreModule } from './core/core.module';
 import { SharedModule } from './shared/shared.module';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-
 
 @NgModule({
   declarations: [
