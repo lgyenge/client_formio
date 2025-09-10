@@ -2,15 +2,25 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormioAppConfig, FormioService } from '@formio/angular';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { Subject, switchMap, takeUntil, tap } from 'rxjs';
+import {
+  Subject,
+  switchMap,
+  takeUntil,
+  tap,
+  EMPTY,
+  map,
+  filter,
+  catchError,
+} from 'rxjs';
 import { DataService } from '../../data.service';
-import { DinetFormioForm, Limit, TableData, Suffix } from '../../dinet_common';
+import {
+  DinetFormioForm,
+  Submission,
+  Limit,
+  TableData,
+  Suffix,
+} from '../../dinet_common';
 import { FormioServiceFactoryService } from '../../formio-service-factory.service';
-
-interface Submission {
-  _id?: string;
-  data: { [key: string]: string | number | boolean };
-}
 
 @Component({
   selector: 'app-meo-step-index2',
@@ -67,33 +77,55 @@ export class MeoStepIndex2Component implements OnInit, OnDestroy {
       .pipe(
         takeUntil(this.destroy$),
         tap((msg) => console.log('Message received:', msg)),
-        switchMap((msg: Suffix | string | null) => {
+        // Validate and extract formId + foundForm
+        map((msg: Suffix | string | null) => {
           if (!msg || typeof msg === 'string') {
             console.error('Invalid or null message type received:', msg);
-            return [];
+            return null;
           }
-
-          if (!this.forms.find((form) => form._id === msg.formId)) {
-            console.error('Form not found for msg:', msg.formId);
-            return [];
-          }
-
-          this.suffix = msg;
-          this.url = `${this.appConfig.appUrl}/form/${msg.formId}/submission`;
-          this.service = this.formioFactory.create(this.url);
 
           const foundForm = this.forms.find((form) => form._id === msg.formId);
-          if (foundForm) {
-            this.form = foundForm;
-            this.limits = this.setLimits(this.form);
+          if (!msg.formId || !foundForm) {
+            console.error(
+              'Form not found or formId is undefined for msg:',
+              msg?.formId
+            );
+            return null;
           }
 
-          return this.service.loadSubmissions({ params: this.query });
-        })
+          // ✅ Safe state mutations outside switchMap
+          this.suffix = msg;
+          this.form = foundForm;
+          this.limits = this.setLimits(this.form);
+
+          const url = `${this.appConfig.appUrl}/form/${msg.formId}/submission`;
+          this.service = this.formioFactory.create(url);
+
+          return {
+            service: this.service,
+            query: this.query as { 'data.lot1__eq': string | null },
+          };
+        }),
+        filter(
+          (
+            ctx
+          ): ctx is {
+            service: FormioService;
+            query: { 'data.lot1__eq': string | null };
+          } => ctx !== null
+        ),
+        switchMap((ctx) =>
+          ctx.service.loadSubmissions({ params: ctx.query }).pipe(
+            catchError((err) => {
+              this.handleError(err);
+              // ✅ Prevent stream termination
+              return EMPTY;
+            })
+          )
+        )
       )
       .subscribe({
-        next: (results) => this.handleSubmissions(results as Submission[]),
-        error: (err) => this.handleError(err),
+        next: (results: any) => this.handleSubmissions(results as Submission[]),
         complete: () => console.info('complete'),
       });
   }
@@ -188,7 +220,6 @@ export class MeoStepIndex2Component implements OnInit, OnDestroy {
   ): void {
     this.tableRows = submissions.map((submission) => {
       const row: TableData[] = [];
-
       form.components?.forEach((component: any) => {
         const type = component.type ?? ''; // ensure string
         if (!['number', 'checkbox'].includes(type)) return;
@@ -224,7 +255,7 @@ export class MeoStepIndex2Component implements OnInit, OnDestroy {
 
       return row;
     });
-    console.log('tableRows', this.tableRows)
+    console.log('tableRows', this.tableRows);
   }
 
   private createTableHeader(form: DinetFormioForm): void {

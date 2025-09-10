@@ -6,6 +6,11 @@ export interface DinetFormioForm extends FormioForm {
   data?: any
 }
 
+export interface Submission {
+  _id?: string;
+  data: { [key: string]: string | number | boolean };
+}
+
 export interface SheetData {
   lot: string
   file_name: string
