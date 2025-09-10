@@ -8,7 +8,7 @@
    </button>
 </div>
 <div class="mt-2 col-md-12">
-  <button class="btn btn-primary" *ngIf="dataList" (click)="uploadForm()">
+  <button class="btn btn-primary" *ngIf="dataList" (click)="uploadForms()">
     Upload Form
   </button>
 </div>
@@ -25,6 +25,6 @@
 
 <div class="mt-2 col-md-12" *ngFor="let item of dataList">{{ item | json }}</div>
 
-<ng-container *ngIf="error_message">
-  <div class="mt-2 col-md-12" *ngFor="let item of error_message">{{ item | json }}</div>
+<ng-container *ngIf="errorMessages">
+  <div class="mt-2 col-md-12" *ngFor="let item of errorMessages">{{ item | json }}</div>
 </ng-container>

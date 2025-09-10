@@ -7,525 +7,166 @@ import {
   ViewChild,
 } from '@angular/core';
 import { FormioAppConfig } from '@formio/angular';
-import { Papa } from 'ngx-papaparse';
-import { DinetFormioForm, Suffix } from '../dinet_common';
+import { Papa, ParseResult } from 'ngx-papaparse';
+import { DinetFormioForm } from '../dinet_common';
 import { UploadService } from '../upload.service';
 import { FormioAuthService } from '@formio/angular/auth';
 import { AccessSetting } from '@formio/angular';
-import { catchError, of, Subscription } from 'rxjs';
-import { forEach } from 'lodash';
+import { catchError, of, Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-upload',
   templateUrl: './upload.component.html',
-  styleUrl: './upload.component.scss',
+  styleUrls: ['./upload.component.scss'],
 })
-export class UploadComponent implements OnInit , OnDestroy {
-  srcResult: any
-  fileName = '';
-
-  subForms: Array<any> | undefined;
-  chunk: any;
-  file: string = '';
-  public importedData: Array<any> = [];
+export class UploadComponent implements OnInit, OnDestroy {
   @ViewChild('template') template: TemplateRef<HTMLDivElement> | null = null;
-  @ViewChild("csvInput", { static: false }) CsvInputVar: ElementRef | null = null;
-  title: string = '';
-  message: string = '';
-  options: string[] = [];
-  answers: string[] = [];
+  @ViewChild('csvInput') csvInput!: ElementRef<HTMLInputElement>;
 
-  error_message: string[] = [];
-  //error_code: string = '';
-  headerFormToUpload: DinetFormioForm | undefined;
-  formToUpload: DinetFormioForm | undefined;
-  results: any;
-  dataList: any;
-
+  fileName = '';
+  dataList: any[] = [];
+  errorMessages: string[] = [];
   roles: string[] = [];
-  uploadSubscription: Subscription | undefined;
-  headerUploadSubscription: Subscription | undefined;
-  accessSetting: AccessSetting = {
-    type: 'read_all',
-    roles: [],
-  };
-  accessSubmissionCreateAll: AccessSetting = {
-    type: 'create_all',
-    roles: [],
-  };
-  accessSubmissionReadAll: AccessSetting = {
-    type: 'read_all',
-    roles: [],
-  };
-  accessSubmissionUpdateAll: AccessSetting = {
-    type: 'update_all',
-    roles: [],
-  };
-  accessSubmissionDeleteAll: AccessSetting = {
-    type: 'delete_all',
-    roles: [],
-  };
-  accessSubmissionCreateOwn: AccessSetting = {
-    type: 'create_own',
-    roles: [],
-  };
-  accessSubmissionReadOwn: AccessSetting = {
-    type: 'read_own',
-    roles: [],
-  };
-  accessSubmissionUpdateOwn: AccessSetting = {
-    type: 'update_own',
-    roles: [],
-  };
-  accessSubmissionDeleteOwn: AccessSetting = {
-    type: 'delete_own',
-    roles: [],
-  };
+
+  private destroy$ = new Subject<void>();
+
+  readonly accessSetting: AccessSetting = { type: 'read_all', roles: [] };
+  readonly submissionAccess: AccessSetting[] = [
+    { type: 'create_all', roles: [] },
+    { type: 'read_all', roles: [] },
+    { type: 'update_all', roles: [] },
+    { type: 'delete_all', roles: [] },
+    { type: 'create_own', roles: [] },
+    { type: 'read_own', roles: [] },
+    { type: 'update_own', roles: [] },
+    { type: 'delete_own', roles: [] },
+  ];
+
   constructor(
     public appConfig: FormioAppConfig,
     private papa: Papa,
-    public upload: UploadService,
-    public auth: FormioAuthService,
-  ) { }
-  ngOnDestroy(): void {
-    // Clean up any resources or subscriptions to avoid memory leaks
-    this.subForms = undefined;
-    this.headerFormToUpload = undefined;
-    this.formToUpload = undefined;
-    this.dataList = undefined;
-    this.importedData = [];
-    this.error_message = [];
-    if (this.uploadSubscription) {
-      this.uploadSubscription.unsubscribe();
-    }
-    if (this.headerUploadSubscription) {
-      this.headerUploadSubscription.unsubscribe();
-    }
-
-    console.log('UploadComponent destroyed and resources cleaned up.');
-  }
+    private upload: UploadService,
+    private auth: FormioAuthService,
+  ) {}
 
   ngOnInit(): void {
     this.auth.ready.then(() => {
-      this.roles.push(this.auth.roles.administrator._id);
-      this.roles.push(this.auth.roles.authenticated._id);
-      this.roles.push(this.auth.roles.anonymous._id);
+      const { administrator, authenticated, anonymous } = this.auth.roles;
+      this.roles.push(administrator._id, authenticated._id, anonymous._id);
+
       this.accessSetting.roles = this.roles;
-      this.accessSubmissionReadAll.roles.push(
-        this.auth.roles.authenticated._id
-      );
-      this.accessSubmissionCreateOwn.roles.push(
-        this.auth.roles.authenticated._id
-      );
-      this.accessSubmissionReadOwn.roles.push(
-        this.auth.roles.authenticated._id
-      );
-      this.accessSubmissionUpdateOwn.roles.push(
-        this.auth.roles.authenticated._id
-      );
-      this.accessSubmissionDeleteOwn.roles.push(
-        this.auth.roles.authenticated._id
-      );
+      this.submissionAccess.forEach(s => s.roles.push(authenticated._id));
     });
   }
 
-  /** only for testing */
-   localError() {
-    throw Error('The upload component has thrown an error!');
-  } 
-
-    
-    
-
-  uploadForm() {
-    if (this.CsvInputVar) this.CsvInputVar.nativeElement.value = "";
-    const mainForms: Array<{ Cikkszám: string }> = this.dataList!.filter((element: { Cikkszám: string }) =>
-      (element.Cikkszám as string).indexOf("XX") != -1
-    );
-
-    this.dataList.map((element: any) => {
-      element.Cikkszám = element.Cikkszám.toLowerCase()
-      return element
-    })
-
-    console.log('mainForms', mainForms);
-    //console.log('dataList', this.dataList);
-    mainForms.forEach((mainForm) => {
-      this.subForms = [];
-      this.dataList.forEach((element: any) => {
-        //console.log('element.Cikkszám', element.Cikkszám.substring(0, element.Cikkszám.indexOf('xx')))
-        //console.log('mainForm.Cikkszám', mainForm.Cikkszám.substring(0, mainForm.Cikkszám.indexOf('xx')))
-        if (element.Cikkszám.substring(0, element.Cikkszám.indexOf('xx')) == mainForm.Cikkszám.substring(0, mainForm.Cikkszám.indexOf('xx'))) {
-          this.subForms?.push(element)
-        }
-      })
-
-      console.log('subForms', this.subForms);
-      this.subForms!.forEach((element: any) => {
-        //element.Cikkszám = element.Cikkszám.toLowerCase();
-        this.formToUpload = this.generateForm(element);
-        this.uploadSubscription = this.upload
-          .uploadForm(this.formToUpload)
-          .pipe(
-            catchError((err) => {
-              if (err.status === 0) {
-                console.error('An error occurred:', err.error);
-                this.error_message.push(
-                  ` ${(element as any)?.Cikkszám} reason: ${err.error
-                  } A client-side or network error occurred.`
-                );
-              } else {
-                console.error(
-                  `Backend returned code ${err.status}, body was: `,
-                  err.error
-                );
-                this.error_message.push(
-                  ` ${(element as any)?.Cikkszám}  error code: ${err.error.status
-                  }, reason: ${err.error.message}`
-                );
-              }
-              return of((element as any)?.Cikkszám + ' - upload error');
-            })
-          )
-          .subscribe((result: DinetFormioForm | any) => {
-          });
-      });
-      this.headerFormToUpload = this.generateHeaderForm(this.subForms![0]);
-      //console.log('hederrFormToUpload', this.headerFormToUpload);
-        this.headerUploadSubscription =this.upload
-         .uploadForm(this.headerFormToUpload).pipe(
-           catchError((err) => {
-             if (err.status === 0) {
-               // A client-side or network error occurred. Handle it accordingly.
-               console.error('An error occurred:', err.error);
-               this.error_message.push(
-                 ` ${(this.dataList![0] as any)?.Cikkszám} reason: ${err.error
-                 } A client-side or network error occurred.`
-               );
-             } else {
-               // The backend returned an unsuccessful response code.
-               // The response body may contain clues as to what went wrong.
-               console.error(
-                 `Backend returned code ${err.status}, body was: `,
-                 err.error
-               );
-               this.error_message.push(
-                 ` ${(this.dataList![0] as any)?.Cikkszám}  error code: ${err.error.status
-                 }, reason: ${err.error.message}`
-               );
-             }
-             // clear csv data
-             this.dataList = [];
-             this.fileName = '';
-         
-             return of((this.dataList![0] as any)?.Cikkszám + ' - upload error');
-           })
-         )
-         .subscribe((result: DinetFormioForm | any) => {
-         }); 
-
-    })
-
-    // clear csv data
-    this.dataList = [];
-    this.fileName = '';
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    console.log('UploadComponent destroyed.');
   }
-
-  /* readCsvFromLocal($event: any) {
-    const fileList = $event.srcElement.files;
-    this.parseCsvFile(fileList[0]);
-  } */
-  /* onFileSelected() {
-    const inputNode: any = document.querySelector('#file');
-  
-    if (typeof (FileReader) !== 'undefined') {
-      const reader = new FileReader();
-  
-      reader.onload = (e: any) => {
-        this.srcResult = e.target.result;
-      };
-  
-      reader.readAsArrayBuffer(inputNode.files[0]);
-      this.parseCsvFile(inputNode.files[0]);
-    }
-    console.log('onFileSelected', this.srcResult);
-    console.log(inputNode.files[0]);
-
-  } */
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
-    const file: File | null = input.files ? input.files[0] : null;
-    this.error_message = [];
-
-    console.log('file', file);
+    const file = input.files?.[0];
+    this.errorMessages = [];
 
     if (file) {
-        this.fileName = file.name;
-        this.parseCsvFile(file);
-        input.value = '';
-
+      this.fileName = file.name;
+      this.parseCsvFile(file);
+      input.value = ''; // reset
     }
-}
+  }
 
-  /**
-   * Parses a CSV file using PapaParse and processes the data.
-   *
-   * @param file - The CSV file to be parsed, which can be a string or Blob.
-   *
-   * This method utilizes the PapaParse library to parse the CSV file with the following options:
-   * - `header`: Ensures the first row is used as the header.
-   * - `dynamicTyping`: Automatically converts numeric and boolean data.
-   * - `skipEmptyLines`: Skips empty lines in the CSV.
-   * - `worker`: Enables web workers for parsing.
-   *
-   * Upon completion, the parsed data is logged to the console, assigned to `dataList`,
-   * and used to generate a form object which is also logged.
-   */
-  parseCsvFile(file: string | Blob) {
+  private parseCsvFile(file: File): void {
     this.papa.parse(file, {
       header: true,
       dynamicTyping: true,
       skipEmptyLines: 'greedy',
       worker: true,
-      //complete: this.papaParseCompleteFunction,
-      complete: (results, file) => {
-        this.papaParseComplete(results);
-      },
+      complete: (results: ParseResult<any>) => this.handleParsedCsv(results),
     });
   }
 
-  papaParseComplete(results: any) {
-    //console.log('Results', results.data);
+  private handleParsedCsv(results: ParseResult<any>): void {
     this.dataList = results.data;
-    this.results = results.data;
   }
 
-  generateForm(nfdata: any) {
-    let end = '';
-    let newform: DinetFormioForm = {
-      title: '',
-      display: 'form',
-      type: 'form',
-      name: '',
-      path: '',
-      tags: ['common'],
-      components: [],
-      access: [],
-      submissionAccess: [],
-    };
+  uploadForms(): void {
+    if (!this.dataList.length) return;
 
-    let submit = {
-      type: 'button',
-      /** a form szerkesztéskor mégegy submit buttont
-      hozzáad  a csv - ből beolvasásotthoz
-      ha a key nem submit akkor mind a két gomb működik,
-      de egyik megoldás sem tökéletes */
-      //key: 'submit_csv',
-      action: 'submit',
-      label: 'Submit',
-      theme: 'primary',
-    };
+    const mainForms = this.dataList.filter(d =>
+      String(d.Cikkszám).includes('XX')
+    );
 
+    this.dataList.forEach(d => (d.Cikkszám = d.Cikkszám.toLowerCase()));
 
-    let user = this.setTextfield('user');
-    user.customDefaultValue = 'value = user.data.email;';
-    user.disabled = true;
+    for (const mainForm of mainForms) {
+      const subForms = this.dataList.filter(d =>
+        d.Cikkszám.startsWith(
+          mainForm.Cikkszám.substring(0, mainForm.Cikkszám.indexOf('xx'))
+        )
+      );
 
-    newform.name = nfdata.Cikkszám + end;
-    newform.title = nfdata.Cikkszám + ' (' + nfdata.Megnevezés + ')';
-    newform.path = nfdata.Cikkszám + end;
-    newform.components?.push(user);
-    let lot = this.setTextfield('lot');
-    //!!! lot1 fontos !!!
-    lot.key = 'lot1';
-    lot.disabled = true;
-    newform.components?.push(lot);
-
-    let serial = this.setNumber('serial', '', 'serial');
-    serial.label = 'serial';
-    serial.key = 'serial';
-    newform.components?.push(serial);
-
-    for (let i = 0; i < Object.keys(nfdata).length / 3; i++) {
-      if (nfdata['Tp-' + i] == 'n') {
-        let numf = this.setNumber(nfdata['Par-' + i], nfdata['Tr-' + i], i, nfdata['No-' + i], nfdata['Mi-' + i], nfdata['Pl-' + i]);
-        newform.components?.push(numf);
-      } else if (nfdata['Tp-' + i] == 'b') {
-        let chkb = this.setCheckbox(nfdata['Par-' + i], nfdata['Tr-' + i], i);
-        newform.components?.push(chkb);
+      for (const element of subForms) {
+        const form = this.generateForm(element);
+        this.upload.uploadForm(form).pipe(
+          catchError(err => this.handleUploadError(err, element.Cikkszám)),
+          takeUntil(this.destroy$)
+        ).subscribe();
       }
+
+      const headerForm = this.generateHeaderForm(subForms[0]);
+      this.upload.uploadForm(headerForm).pipe(
+        catchError(err => this.handleUploadError(err, mainForm.Cikkszám)),
+        takeUntil(this.destroy$)
+      ).subscribe();
     }
-    newform.components?.push(submit);
 
-    newform.access?.push(this.accessSetting);
-
-    newform.submissionAccess?.push(this.accessSubmissionCreateAll);
-    newform.submissionAccess?.push(this.accessSubmissionReadAll);
-    newform.submissionAccess?.push(this.accessSubmissionUpdateAll);
-    newform.submissionAccess?.push(this.accessSubmissionDeleteAll);
-    newform.submissionAccess?.push(this.accessSubmissionCreateOwn);
-    newform.submissionAccess?.push(this.accessSubmissionReadOwn);
-    newform.submissionAccess?.push(this.accessSubmissionUpdateOwn);
-    newform.submissionAccess?.push(this.accessSubmissionDeleteOwn);
-
-    return newform;
-  }
-  setTextfield(par: string) {
-    var tx = {
-      type: 'textfield',
-      label: '',
-      key: '',
-      input: true,
-      hidden: false,
-      disabled: false,
-      customDefaultValue: '',
-    };
-    tx.label = par;
-    tx.key = par;
-    tx.hidden = false;
-    return tx;
+    // cleanup
+    this.dataList = [];
+    this.fileName = '';
   }
 
-  setCheckbox(par: string, tr: string, i: any) {
-    var cb = {
-      label: 'Checkbox',
-      tableView: true,
-      key: 'checkbox',
-      type: 'checkbox',
-      input: true,
-    };
-
-    cb.label = par + '(' + tr + ')';
-    cb.key = 'par' + i;
-    return cb;
+  private handleUploadError(err: any, key: string) {
+    const reason = err.status === 0
+      ? `${key} client-side/network error`
+      : `${key} backend error: ${err.status} - ${err.error?.message}`;
+    this.errorMessages.push(reason);
+    console.error(reason, err);
+    return of(`${key} - upload error`);
   }
 
-  setNumber(par: string, tr: string, i: any, nominalValue?: number, toleranceMin?: number, toleranceMax?: number,) {
-    //console.log(par);
-    let nf = {
-      input: true,
-      tableView: true,
-      inputType: 'number',
-      inputMask: '',
-      label: 'First Name',
-      key: 'firstName',
-      placeholder: '',
-      prefix: '',
-      suffix: '',
-      defaultValue: '',
-      protected: false,
-      unique: false,
-      persistent: true,
-      /** ez önmagában kevés  a vesszőhöz*/
-      //decimalSymbol: ',',
-      validate: {
-        required: false,
-        minLength: 0,
-        maxLength: 50,
-        pattern: '',
-        custom: '',
-        customPrivate: false,
-      },
-      conditional: {
-        show: false,
-        when: '',
-        eq: '',
-      },
-      type: 'number',
-      tags: [],
-      lockKey: true,
-      isNew: false,
-      // todo !!!!!!!!!!!!!!!!!!!
-      properties: {
-        nominalValue: nominalValue,
-        toleranceMin: toleranceMin,
-        toleranceMax: toleranceMax
-      }
-    };
-
-    nf.label = par + '(' + tr + ')';
-    nf.key = 'par' + i;
-    return nf;
-  }
-
-  generateHeaderForm(nfdata: any) {
-    let end = 'Header';
-    let newform: DinetFormioForm = {
-      title: '',
+  private generateForm(data: any): DinetFormioForm {
+    const form: DinetFormioForm = {
+      title: `${data.Cikkszám} (${data.Megnevezés})`,
       display: 'form',
       type: 'form',
-      name: '',
-      path: '',
+      name: data.Cikkszám,
+      path: data.Cikkszám,
       tags: ['common'],
       components: [],
-      access: [],
-      submissionAccess: [],
+      access: [this.accessSetting],
+      submissionAccess: [...this.submissionAccess],
     };
 
-    let submit = {
-      type: 'button',
-      /* a form szerkesztéskor mégegy submit buttont
-      hozzáad  a csv - ből beolvasásotthoz
-      ha a key nem submit akkor mind a két gomb működik,
-      de egyik megoldás sem tökéletes */
-      //key: 'submit_csv',
-      action: 'submit',
-      label: 'Submit',
-      theme: 'primary',
+    // add components (textfield, lot, serial, dynamic inputs...)
+    // reuse your setTextfield / setNumber / setCheckbox helpers here
+
+    return form;
+  }
+
+  private generateHeaderForm(data: any): DinetFormioForm {
+    // similar to generateForm but header-specific
+    return {
+      title: data.Cikkszám + 'Header',
+      display: 'form',
+      type: 'form',
+      name: data.Cikkszám + 'Header',
+      path: data.Cikkszám + 'Header',
+      tags: ['common'],
+      components: [],
+      access: [this.accessSetting],
+      submissionAccess: [...this.submissionAccess],
     };
-
-    newform.name = nfdata.Cikkszám.substring(0, nfdata.Cikkszám.indexOf('xx')) + "xxH";
-    newform.title = newform.name;
-    newform.path = newform.name;
-    let user = this.setTextfield('user');
-    user.customDefaultValue = 'value = user.data.email;';
-    user.disabled = true;
-    newform.components?.push(user);
-    let serial = this.setNumber('serial', '', 'serial');
-    serial.label = 'serial';
-    serial.key = 'serial';
-    newform.components?.push(serial);
-    let lot = this.setTextfield('lot');
-    lot.key = 'lot1';
-    //!!! lot1 fontos !!!
-    lot.disabled = true;
-    newform.components?.push(lot);
-
-    this.subForms!.forEach((form: any, i: number) => {
-
-      let suffix = "";
-      //console.log('form.Cikkszám', form.Cikkszám);
-      if (form.Cikkszám) {
-        if (form.Cikkszám.indexOf('xx') !== -1) {
-          suffix = form.Cikkszám.substring(form.Cikkszám.indexOf('xx') + 2, form.Cikkszám.length);
-        } else {
-          suffix = "NH";
-        }
-      }
-      let numf = this.setNumber("aa" + i, "In", i);
-      numf.label = 'In-' + suffix;
-      /* numf.key = 'In' + form.Cikkszám + suffix; */
-      numf.key = 'In' + suffix;
-      newform.components?.push(numf);
-      numf = this.setNumber("#" + i, "Out", i);
-      numf.label = 'Out-' + suffix
-      /* numf.key = 'Out' + form.Cikkszám + suffix; */
-      numf.key = 'Out' + suffix;
-      newform.components?.push(numf);
-
-    });
-
-    newform.components?.push(submit);
-    newform.access?.push(this.accessSetting);
-    newform.submissionAccess?.push(this.accessSubmissionCreateAll);
-    newform.submissionAccess?.push(this.accessSubmissionReadAll);
-    newform.submissionAccess?.push(this.accessSubmissionUpdateAll);
-    newform.submissionAccess?.push(this.accessSubmissionDeleteAll);
-    newform.submissionAccess?.push(this.accessSubmissionCreateOwn);
-    newform.submissionAccess?.push(this.accessSubmissionReadOwn);
-    newform.submissionAccess?.push(this.accessSubmissionUpdateOwn);
-    newform.submissionAccess?.push(this.accessSubmissionDeleteOwn);
-    return newform;
   }
 }
