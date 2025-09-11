@@ -13,6 +13,7 @@ import { UploadService } from '../upload.service';
 import { FormioAuthService } from '@formio/angular/auth';
 import { AccessSetting } from '@formio/angular';
 import { catchError, of, Subject, takeUntil } from 'rxjs';
+import { FormBuilderService } from '../form-builder.service';
 
 @Component({
   selector: 'app-upload',
@@ -27,26 +28,32 @@ export class UploadComponent implements OnInit, OnDestroy {
   dataList: any[] = [];
   errorMessages: string[] = [];
   roles: string[] = [];
+  subForms: DinetFormioForm[] = [];
+  formToUpload!: DinetFormioForm;
+  headerFormToUpload!: DinetFormioForm;
 
   private destroy$ = new Subject<void>();
 
   readonly accessSetting: AccessSetting = { type: 'read_all', roles: [] };
+
   readonly submissionAccess: AccessSetting[] = [
-    { type: 'create_all', roles: [] },
+    //{ type: 'create_all', roles: [] },
     { type: 'read_all', roles: [] },
-    { type: 'update_all', roles: [] },
-    { type: 'delete_all', roles: [] },
+    //{ type: 'update_all', roles: [] },
+    //{ type: 'delete_all', roles: [] },
     { type: 'create_own', roles: [] },
     { type: 'read_own', roles: [] },
     { type: 'update_own', roles: [] },
     { type: 'delete_own', roles: [] },
   ];
 
+
   constructor(
     public appConfig: FormioAppConfig,
     private papa: Papa,
     private upload: UploadService,
     private auth: FormioAuthService,
+    private formBuilder: FormBuilderService
   ) {}
 
   ngOnInit(): void {
@@ -55,7 +62,7 @@ export class UploadComponent implements OnInit, OnDestroy {
       this.roles.push(administrator._id, authenticated._id, anonymous._id);
 
       this.accessSetting.roles = this.roles;
-      this.submissionAccess.forEach(s => s.roles.push(authenticated._id));
+      this.submissionAccess.forEach((s) => s.roles.push(authenticated._id));
     });
   }
 
@@ -64,6 +71,7 @@ export class UploadComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
     console.log('UploadComponent destroyed.');
   }
+
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -94,32 +102,52 @@ export class UploadComponent implements OnInit, OnDestroy {
   uploadForms(): void {
     if (!this.dataList.length) return;
 
-    const mainForms = this.dataList.filter(d =>
+    const mainForms = this.dataList.filter((d) =>
       String(d.Cikkszám).includes('XX')
     );
 
-    this.dataList.forEach(d => (d.Cikkszám = d.Cikkszám.toLowerCase()));
+    this.dataList.forEach((d) => (d.Cikkszám = d.Cikkszám.toLowerCase()));
 
     for (const mainForm of mainForms) {
-      const subForms = this.dataList.filter(d =>
+      const subForms = this.dataList.filter((d) =>
         d.Cikkszám.startsWith(
           mainForm.Cikkszám.substring(0, mainForm.Cikkszám.indexOf('xx'))
         )
       );
 
       for (const element of subForms) {
-        const form = this.generateForm(element);
-        this.upload.uploadForm(form).pipe(
-          catchError(err => this.handleUploadError(err, element.Cikkszám)),
-          takeUntil(this.destroy$)
-        ).subscribe();
+        //const form = this.generateForm(element);
+        this.formToUpload = this.formBuilder.generateForm(
+          element,
+          this.accessSetting,
+          this.submissionAccess
+        );
+        this.upload
+          .uploadForm(this.formToUpload)
+          .pipe(
+            catchError((err) => this.handleUploadError(err, element.Cikkszám)),
+            takeUntil(this.destroy$)
+          )
+          .subscribe();
       }
 
-      const headerForm = this.generateHeaderForm(subForms[0]);
-      this.upload.uploadForm(headerForm).pipe(
-        catchError(err => this.handleUploadError(err, mainForm.Cikkszám)),
-        takeUntil(this.destroy$)
-      ).subscribe();
+      if (!subForms || subForms.some((sf) => !('Cikkszám' in sf))) {
+        console.error('Invalid subForms input', subForms);
+        return;
+      }
+      this.headerFormToUpload = this.formBuilder.generateHeaderForm(
+        subForms![0],
+        subForms!,
+        this.accessSetting,
+        this.submissionAccess
+      );
+      this.upload
+        .uploadForm(this.headerFormToUpload)
+        .pipe(
+          catchError((err) => this.handleUploadError(err, mainForm.Cikkszám)),
+          takeUntil(this.destroy$)
+        )
+        .subscribe();
     }
 
     // cleanup
@@ -128,45 +156,12 @@ export class UploadComponent implements OnInit, OnDestroy {
   }
 
   private handleUploadError(err: any, key: string) {
-    const reason = err.status === 0
-      ? `${key} client-side/network error`
-      : `${key} backend error: ${err.status} - ${err.error?.message}`;
+    const reason =
+      err.status === 0
+        ? `${key} client-side/network error`
+        : `${key} backend error: ${err.status} - ${err.error?.message}`;
     this.errorMessages.push(reason);
     console.error(reason, err);
     return of(`${key} - upload error`);
-  }
-
-  private generateForm(data: any): DinetFormioForm {
-    const form: DinetFormioForm = {
-      title: `${data.Cikkszám} (${data.Megnevezés})`,
-      display: 'form',
-      type: 'form',
-      name: data.Cikkszám,
-      path: data.Cikkszám,
-      tags: ['common'],
-      components: [],
-      access: [this.accessSetting],
-      submissionAccess: [...this.submissionAccess],
-    };
-
-    // add components (textfield, lot, serial, dynamic inputs...)
-    // reuse your setTextfield / setNumber / setCheckbox helpers here
-
-    return form;
-  }
-
-  private generateHeaderForm(data: any): DinetFormioForm {
-    // similar to generateForm but header-specific
-    return {
-      title: data.Cikkszám + 'Header',
-      display: 'form',
-      type: 'form',
-      name: data.Cikkszám + 'Header',
-      path: data.Cikkszám + 'Header',
-      tags: ['common'],
-      components: [],
-      access: [this.accessSetting],
-      submissionAccess: [...this.submissionAccess],
-    };
   }
 }

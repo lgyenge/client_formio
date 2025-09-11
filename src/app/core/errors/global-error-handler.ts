@@ -14,7 +14,9 @@ export class GlobalErrorHandler implements ErrorHandler {
   ) {}
 
   handleError(error: any) {
-    console.error('Error from global error handler1', JSON.stringify(error));
+    //console.error('Error from global error handler1', JSON.stringify(error));
+    console.error('Error from global error handler1', error);
+
 
     // Check if the error message indicates a token issue
     //if (error?.message === 'Bad Token') {

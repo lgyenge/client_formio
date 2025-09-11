@@ -34,8 +34,16 @@ $dark:          $gray-800;
 @import "bootswatch/dist/cosmo/_variables.scss";
 @import "bootstrap/scss/bootstrap.scss";
 @import "bootswatch/dist/cosmo/_bootswatch.scss";
-$fa-font-path: 'font-awesome/fonts';
-@import 'font-awesome/scss/font-awesome';
+ 
+
+/* $fa-font-path: "assets/fonts"; // you already copy fonts here
+@import "font-awesome/scss/font-awesome"; */
+
+//$fa-font-path: "~font-awesome/fonts"; // webpack resolves this from node_modules
+$fa-font-path: "font-awesome/fonts"; // webpack resolves this from node_modules
+
+@import "font-awesome/scss/font-awesome"; 
+
 
 .logo {
   height: 1.9em;
