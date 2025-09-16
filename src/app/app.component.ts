@@ -9,7 +9,8 @@ import { FormioAuthService } from '@formio/angular/auth';
   styleUrl: './app.component.scss',
 })
 export class AppComponent {
-  title = 'client_formio';
+  //title = 'client_formio';
+  title = 'Dinet Data Logger';
 
   constructor(
     private auth: FormioAuthService,

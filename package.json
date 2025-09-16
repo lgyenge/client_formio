@@ -23,6 +23,7 @@
     "@angular/router": "^17.3.0",
     "@formio/angular": "^7.5.0-rc.2",
     "@formio/js": "^5.0.0-rc.43",
+    "@fortawesome/fontawesome-free": "^7.0.1",
     "bootstrap": "^5.3.3",
     "bootswatch": "^5.3.3",
     "core-js": "^3.37.0",

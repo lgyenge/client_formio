@@ -169,6 +169,7 @@ export class MeoStepIndex2Component implements OnInit, OnDestroy {
   }
 
   onSubmit(): void {
+    if (!this.headerFormservice) return;
     this.suffix.inCnt = this.inOutForm.value.inCnt;
     this.suffix.outCnt = this.inOutForm.value.outCnt;
 
