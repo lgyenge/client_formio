@@ -5,8 +5,8 @@ import { CreateResourceRoutingModule } from './create-resource-routing.module';
 import { CreateResourceComponent } from './create-resource.component';
 
 import {
-  FormioResource,
-  FormioResourceRoutes,
+  //FormioResource,
+  //FormioResourceRoutes,
   FormioResourceConfig,
   FormioResourceService
 } from '@formio/angular/resource';
