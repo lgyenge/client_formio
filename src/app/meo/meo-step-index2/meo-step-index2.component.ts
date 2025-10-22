@@ -21,6 +21,7 @@ import {
   Suffix,
 } from '../../dinet_common';
 import { FormioServiceFactoryService } from '../../formio-service-factory.service';
+import { FormioAuthService } from '@formio/angular/auth';
 
 @Component({
   selector: 'app-meo-step-index2',
@@ -34,7 +35,12 @@ export class MeoStepIndex2Component implements OnInit, OnDestroy {
   prod_no = localStorage.getItem('prod_no');
   initial_quantity = localStorage.getItem('initial_quantity');
 
-  query = { 'data.lot1__eq': this.lot_no };
+  //query = { 'data.lot1__eq': this.lot_no };
+  query = { 'data.lot1__eq': this.lot_no,
+      limit: 100,
+      sort: 'data.serial',
+      skip: 0, };
+
   forms = JSON.parse(
     localStorage.getItem('forms') ?? '[]'
   ) as DinetFormioForm[];
@@ -52,6 +58,7 @@ export class MeoStepIndex2Component implements OnInit, OnDestroy {
   headerFormservice: FormioService;
   headerSubmission: any;
   suffix: Suffix = {};
+  
 
   constructor(
     private route: ActivatedRoute,
@@ -59,7 +66,8 @@ export class MeoStepIndex2Component implements OnInit, OnDestroy {
     private dataService: DataService,
     private appConfig: FormioAppConfig,
     private fb: FormBuilder,
-    private formioFactory: FormioServiceFactoryService
+    private formioFactory: FormioServiceFactoryService,
+    public auth: FormioAuthService,
   ) {
     // Default header form service (will be updated later if a header form is found)
     this.headerFormservice = this.formioFactory.create(this.appConfig.appUrl);

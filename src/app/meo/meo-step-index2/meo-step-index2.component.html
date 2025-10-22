@@ -22,7 +22,7 @@
             formControlName="outCnt"
             placeholder="Out"
           />
-          <button class="btn btn-primary btn-sm" type="submit">Submit</button>
+          <button class="btn btn-primary btn-sm" type="submit" [disabled]="!auth.is.administrator">Submit</button>
         </div>
       </form>
     </div>
