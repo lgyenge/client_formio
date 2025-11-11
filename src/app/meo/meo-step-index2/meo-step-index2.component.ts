@@ -36,10 +36,12 @@ export class MeoStepIndex2Component implements OnInit, OnDestroy {
   initial_quantity = localStorage.getItem('initial_quantity');
 
   //query = { 'data.lot1__eq': this.lot_no };
-  query = { 'data.lot1__eq': this.lot_no,
-      limit: 100,
-      sort: 'data.serial',
-      skip: 0, };
+  query = {
+    'data.lot1__eq': this.lot_no,
+    limit: 100,
+    sort: 'data.serial',
+    skip: 0,
+  };
 
   forms = JSON.parse(
     localStorage.getItem('forms') ?? '[]'
@@ -58,7 +60,6 @@ export class MeoStepIndex2Component implements OnInit, OnDestroy {
   headerFormservice: FormioService;
   headerSubmission: any;
   suffix: Suffix = {};
-  
 
   constructor(
     private route: ActivatedRoute,
@@ -67,7 +68,7 @@ export class MeoStepIndex2Component implements OnInit, OnDestroy {
     private appConfig: FormioAppConfig,
     private fb: FormBuilder,
     private formioFactory: FormioServiceFactoryService,
-    public auth: FormioAuthService,
+    public auth: FormioAuthService
   ) {
     // Default header form service (will be updated later if a header form is found)
     this.headerFormservice = this.formioFactory.create(this.appConfig.appUrl);
@@ -209,17 +210,28 @@ export class MeoStepIndex2Component implements OnInit, OnDestroy {
         const nominal = +component['properties']?.nominalValue || 0;
         const tolMin = +component['properties']?.toleranceMin || 0;
         const tolMax = +component['properties']?.toleranceMax || 0;
-
-        limits.push({
+        //console.log('nominal, tolMin, tolMax:', nominal, tolMin, tolMax);
+        /* limits.push({
           key: component.key ?? '',
           nominalValue: nominal,
           lowerRedLimit: nominal - tolMin,
           upperRedLimit: nominal + tolMax,
           lowerYellowLimit: nominal - 0.7 * tolMin,
           upperYellowLimit: nominal + 0.7 * tolMax,
+        }); */
+        /** round the limits */
+        limits.push({
+          key: component.key ?? '',
+          nominalValue: nominal,
+          lowerRedLimit: Math.round((nominal - tolMin + Number.EPSILON) * 100) / 100,
+          upperRedLimit: Math.round((nominal + tolMax + Number.EPSILON) * 100) / 100,
+          lowerYellowLimit: Math.round((nominal - 0.7 * tolMin + Number.EPSILON) * 100) / 100,
+          upperYellowLimit: Math.round((nominal + 0.7 * tolMax + Number.EPSILON) * 100) / 100,
         });
       }
     });
+    console.log('Limits set:', limits);
+
     return limits;
   }
 
