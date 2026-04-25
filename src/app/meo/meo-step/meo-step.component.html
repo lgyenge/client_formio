@@ -1,20 +1,40 @@
-<ul aria-label="Submission" role="navigation" class="nav nav-tabs" style="margin-bottom:10px">
-    <li class="nav-item"><a class="nav-link" routerLink="../../"><em
-                class="fa fa-chevron-left bi bi-chevron-left"></em></a>
+<ul
+  aria-label="Submission"
+  role="navigation"
+  class="nav nav-tabs"
+  style="margin-bottom: 10px"
+>
+  <li class="nav-item">
+    <a class="nav-link" routerLink="../../"
+      ><em class="fa fa-chevron-left bi bi-chevron-left"></em
+    ></a>
+  </li>
+  <ng-container *ngFor="let form of forms; index as i">
+    <li
+      *ngIf="
+        auth.is.administrator ||
+        (suffixes[i].name != 'H' && suffixes[i].name != 'ekt')
+      "
+    >
+      <a
+        class="nav-link"
+        routerLink="/meo/step/{{ forms[i]._id }}/header"
+        routerLinkActive="active"
+      >
+        {{ suffixes[i].name }}</a
+      >
     </li>
-    <ng-container *ngFor="let form of forms ; index as i; ">
-        <li *ngIf="(auth.is.administrator || (suffixes[i].name !='H') && (suffixes[i].name !='ekt'))">
-            <a class="nav-link" routerLink="/meo/step/{{(forms[i]._id)}}/header" routerLinkActive="active">
-                {{suffixes[i].name}}</a>
-        </li>
-    </ng-container>
+  </ng-container>
+  <li class="nav-item" routerLinkActive="active">
+    <a class="nav-link" routerLink="new" routerLinkActive="active">New</a>
+  </li>
 
+  <li *ngIf="auth.is.administrator" class="nav-item" routerLinkActive="active">
+    <a class="nav-link" routerLink="save" routerLinkActive="active">Excel</a>
+  </li>
+    <li *ngIf="auth.is.administrator" class="nav-item" routerLinkActive="active">
+    <a class="nav-link" routerLink="archive" routerLinkActive="active">Archive</a>
+  </li>
 
-    <li *ngIf="auth.is.administrator" class="nav-item" routerLinkActive="active"><a class="nav-link" routerLink="save"
-            routerLinkActive="active">Excel</a>
-    </li>
-    <li class="nav-item" routerLinkActive="active"><a class="nav-link" routerLink="new"
-            routerLinkActive="active">New</a>
-    </li>
 </ul>
 <router-outlet></router-outlet>

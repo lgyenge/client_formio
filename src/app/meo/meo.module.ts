@@ -14,6 +14,7 @@ import { Meo2Component } from './meo2/meo2.component';
 import { MeoStepIndex2Component } from './meo-step-index2/meo-step-index2.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { RouterModule } from '@angular/router';
+import { ArchiveComponent } from './archive/archive.component';
 
 
 @NgModule({
@@ -26,6 +27,7 @@ import { RouterModule } from '@angular/router';
     MeoExcelComponent,
     Meo2Component,
     MeoStepIndex2Component,
+    ArchiveComponent,
   ],
   imports: [
     CommonModule,

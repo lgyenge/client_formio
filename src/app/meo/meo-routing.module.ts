@@ -15,6 +15,7 @@ import { MeoExcelComponent } from './meo-excel/meo-excel.component';
 import { authGuard } from '../guards/auth.guard';
 import { Meo2Component } from './meo2/meo2.component';
 import { MeoStepIndex2Component } from './meo-step-index2/meo-step-index2.component';
+import { ArchiveComponent } from './archive/archive.component';
 
 const routes: Routes = [
   { path: '', component: Meo2Component, canActivate: [authGuard] },
@@ -38,6 +39,11 @@ const routes: Routes = [
         path: 'save',
         component: MeoExcelComponent,
       },
+      {
+        path: 'archive',
+        component: ArchiveComponent,
+      },
+
       {
         path: 'new',
         component: MeoViewComponent,
