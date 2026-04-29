@@ -82,6 +82,7 @@ export class MeoExcelComponent implements OnInit {
       file_name: form.name || '',
       keys: keys,
       labels: labels,
+      tolerances: [],
       rows: rows,
     };
     //console.log(sd);

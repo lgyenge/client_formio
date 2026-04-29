@@ -4,14 +4,16 @@ import { SheetData } from './dinet_common';
 import { Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class LotExportService {
+  //private readonly API_URL = 'http://localhost:3100/api/generate-pdf';
+  private readonly API_URL = 'http://localhost:3100/api/complete-lot-archive';
 
-private readonly API_URL = 'https://alfresco-elsig-app.localhost/api/generate-lot-pdf'; // 'https://yourdomain.com/api/generate-lot-pdf';
-
+  
   constructor(private http: HttpClient) {}
 
-exportLotToAlfresco(lotData: any): Observable<Blob> { 
-  return this.http.post(this.API_URL, lotData, { responseType: 'blob' }); 
-}}
+  exportLotToAlfresco(lotData: any): Observable<Blob> {
+    return this.http.post(this.API_URL, lotData, { responseType: 'blob' });
+  }
+}

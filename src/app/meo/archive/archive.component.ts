@@ -6,7 +6,12 @@ import {
   FormioService,
   FormioSubmission,
 } from '@formio/angular';
-import { DinetFormioForm, SheetData } from '../../dinet_common';
+import {
+  DinetFormioForm,
+  SheetData,
+  LotForSignature,
+  Tolerance,
+} from '../../dinet_common';
 import { FormioServiceFactoryService } from '../../formio-service-factory.service';
 
 @Component({
@@ -32,6 +37,17 @@ export class ArchiveComponent implements OnInit {
   };
 
   sheetData: SheetData[] = [];
+  lotForSignature: LotForSignature = {
+    signers: [
+      {
+        firstName: 'Gipsz',
+        lastName: 'Jakab',
+        reasonForSignature: 'Gyártás ellenőrizve',
+        nameOfSigner: 'abc',
+      },
+    ],
+    ProdSteps: [],
+  };
   constructor(
     public appConfig: FormioAppConfig,
     private formioFactory: FormioServiceFactoryService,
@@ -55,11 +71,25 @@ export class ArchiveComponent implements OnInit {
     let keys: string[] = [];
     let labels: string[] = [];
     let rows: string[][] = [];
+    let tolerances: any[] = [];
     let sd: SheetData;
     form.components?.forEach((component) => {
       if (component.type !== 'button' && component.key !== 'lot1') {
         keys.push(component.key ?? '');
         labels.push(component.label ?? '');
+        if (component['properties'] && component['properties'].nominalValue ) {
+        //if (component['properties']) {
+          console.log(component['properties'].nominalValue);
+
+          //properties.push(component['properties'] as Tolerance);
+            tolerances.push({
+            nominalValue: component['properties'].nominalValue,
+            toleranceMin: component['properties'].toleranceMin,
+            toleranceMax: component['properties'].toleranceMax,
+          }); 
+        } else {
+          tolerances.push(null);
+        }
       }
     });
     //console.log('keys:' + keys);
@@ -81,6 +111,7 @@ export class ArchiveComponent implements OnInit {
       file_name: form.name || '',
       keys: keys,
       labels: labels,
+      tolerances: tolerances,
       rows: rows,
     };
     //console.log(sd);
@@ -114,12 +145,34 @@ export class ArchiveComponent implements OnInit {
       // names must be equal
       return 0;
     });
-    this.lotExportService
-      .exportLotToAlfresco(this.sheetData)
-      .subscribe((blob: any) => {
-        console.log(blob);
-        // Handle the Blob (e.g., download the file)
-      });
-    console.log(this.sheetData);
+    this.lotForSignature.ProdSteps = this.sheetData;
+    this.lotExportService.exportLotToAlfresco(this.lotForSignature).subscribe({
+      next: (blob: Blob) => {
+        console.log('PDF Blob megérkezett:', blob.size, 'byte');
+
+        // 1. URL létrehozása a Blob-ból
+        const url = window.URL.createObjectURL(blob);
+
+        // 2. Ideiglenes link elem létrehozása
+        const link = document.createElement('a');
+        link.href = url;
+
+        // 3. Fájlnév beállítása (ha a szerverről nem jönne át)
+        const fileName = `LOT_${this.lotForSignature.ProdSteps[0].lot}.pdf`;
+        link.setAttribute('download', fileName);
+
+        // 4. Szimulált kattintás a letöltéshez
+        document.body.appendChild(link);
+        link.click();
+
+        // 5. Takarítás
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => {
+        console.error('Hiba a PDF exportálásakor:', err);
+        // Itt értesítheted a felhasználót (pl. Toast/SnackBar)
+      },
+    });
   }
 }

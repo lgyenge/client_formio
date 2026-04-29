@@ -16,7 +16,26 @@ export interface SheetData {
   file_name: string
   keys: string[]
   labels: string[]
+  tolerances: any[] //  tolerances can be null or object with nominalValue, toleranceMin and toleranceMax
   rows: any
+}
+
+export interface Tolerance {
+ nominalValue: number
+ toleranceMin: number
+ toleranceMax: number
+}
+
+export interface LotForSignature {
+  signers: Signer[]
+  ProdSteps: SheetData []
+}
+
+export interface Signer {
+  firstName: string
+  lastName: string
+  reasonForSignature: string
+  nameOfSigner: string
 }
 
 export interface TableData {
