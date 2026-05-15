@@ -20,6 +20,7 @@ import { FormioServiceFactoryService } from '../../formio-service-factory.servic
   styleUrl: './archive.component.scss',
 })
 export class ArchiveComponent implements OnInit {
+  formioUser = JSON.parse(localStorage.getItem('formioUser') ?? '{}');
   services: FormioService[] = []; // | undefined;
   forms: DinetFormioForm[] = JSON.parse(localStorage.getItem('forms') ?? '[]');
   keys: (string | undefined)[] = [];
@@ -40,10 +41,10 @@ export class ArchiveComponent implements OnInit {
   lotForSignature: LotForSignature = {
     signers: [
       {
-        firstName: 'Gipsz',
-        lastName: 'Jakab',
+        firstName: this.formioUser?.data?.firstName || '',
+        lastName: this.formioUser?.data?.lastName || 'unknown',
         reasonForSignature: 'Gyártás ellenőrizve',
-        nameOfSigner: 'abc',
+        nameOfSigner: this.formioUser?.data?.email || 'unknown',
       },
     ],
     ProdSteps: [],

@@ -7,7 +7,6 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class LotExportService {
-  //private readonly API_URL = 'http://localhost:3100/api/generate-pdf';
   private readonly API_URL = 'http://localhost:3100/api/complete-lot-archive';
 
   

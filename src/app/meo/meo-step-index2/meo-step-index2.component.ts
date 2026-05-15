@@ -160,6 +160,7 @@ export class MeoStepIndex2Component implements OnInit, OnDestroy {
 
   private handleSubmissions(results: Submission[]): void {
     this.headerSubmission = this.suffix?.headerSubmission;
+    console.log('Header submission:', this.headerSubmission);
 
     this.inOutForm.patchValue({
       inCnt: this.suffix?.inCnt ?? '',
@@ -167,6 +168,7 @@ export class MeoStepIndex2Component implements OnInit, OnDestroy {
     });
 
     this.submissions = results;
+    console.log('Submissions loaded:', this.submissions);
     this.createTableRows(this.form, this.submissions);
     this.createTableHeader(this.form);
   }
